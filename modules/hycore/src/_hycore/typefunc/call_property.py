@@ -1,4 +1,7 @@
-class call_property:
+from typing import Callable, Self
+
+
+class call_property[T]:
     """
     类似内置的 ``@property`` 装饰器, 但是使用了另一种设置和获取值的方法
 
@@ -13,12 +16,14 @@ class call_property:
     比如: ``.property(value)`` 等同于 ``.property = value``
 
     """
-    def __init__(self, fget, fset=None, fdel=None):
+
+    def __init__(self, fget: Callable[[Self], T], fset: Callable[[Self, T], None] = None,
+                 fdel: Callable[[Self], None] = None):
         self._fget = fget
         self._fset = fset
         self._fdel = fdel
 
-    def getter(self, fget):
+    def getter(self, fget: Callable[[Self], T]):
         if not callable(fget):
             raise TypeError("fget must be callable")
 
@@ -26,7 +31,7 @@ class call_property:
 
         return self
 
-    def setter(self, fset):
+    def setter(self, fset: Callable[[Self, T], None]):
         if not callable(fset):
             raise TypeError("fset must be callable")
 
@@ -34,7 +39,7 @@ class call_property:
 
         return self
 
-    def deleter(self, fdel):
+    def deleter(self, fdel: Callable[[Self], None]):
         if not callable(fdel):
             raise TypeError("fdel must be callable")
 
@@ -42,7 +47,7 @@ class call_property:
 
         return self
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance, owner) -> Callable[[], T] | Self | Callable[[T], None]:
         if instance is None:
             return self
 
