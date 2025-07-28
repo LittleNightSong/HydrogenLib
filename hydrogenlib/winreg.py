@@ -1,1 +1,1 @@
-from _hywinreg import *
+from _hywinreg.hywinreg import *

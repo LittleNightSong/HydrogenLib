@@ -1,1 +1,2 @@
-from _hycrypto import *
+from _hycrypto.crypto import *
+from _hycrypto.encryio import *

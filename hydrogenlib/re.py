@@ -1,1 +1,1 @@
-from _hyre import *
+from _hyre.re_plus import *

@@ -1,1 +1,1 @@
-from _hydownloader import *
+from _hydownloader.dynamic_model import *

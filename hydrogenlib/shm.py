@@ -1,1 +1,1 @@
-from _hyshm import *
+from _hyshm.hyshm import *

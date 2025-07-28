@@ -1,1 +1,1 @@
-from _hyquickapi import *
+from _hyquickapi.client import *

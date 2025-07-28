@@ -1,1 +1,1 @@
-from _hythreading import *
+from _hythreading.thread import *
