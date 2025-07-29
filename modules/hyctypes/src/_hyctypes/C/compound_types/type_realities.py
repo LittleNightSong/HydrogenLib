@@ -1,10 +1,8 @@
-import ctypes
-from inspect import get_annotations, Signature
+from inspect import Signature, get_annotations
 
 from _hycore.typefunc import get_type_name, get_name, get_signature
-from _hycore.utils import LazyProperty
+from .base import CallingConvention as CV, pointer
 from .impls import *
-from .base import CallingConvention as CV
 from ..methods import get_types_from_signature
 
 
@@ -20,13 +18,19 @@ class PointerType(AbstractCType, real=Pointer):
     def __call__(self, obj):
         return Pointer(pointer(obj))
 
+    def _convert_pointer(self, obj):
+        return obj.cast(self.tp)
+
+    def _convert_obj(self, obj):
+        return Pointer(pointer(obj))
+
+    _convert_mro = {
+        Pointer: _convert_pointer,
+    }
+
     def __convert_ctype__(self, obj):
-        if isinstance(obj, Pointer):
-            return obj.cast(self.tp)
-        elif isinstance(obj, self.tp):
-            return Pointer(pointer(obj))
-        else:
-            raise TypeError(f"Cannot convert {obj} as {self}")
+        tp = type(obj)
+        return self._convert_mro.get(tp, self._convert_obj)(self, obj)
 
 
 class ArrayType(AbstractCType, real=Array):
@@ -45,7 +49,7 @@ class ArrayType(AbstractCType, real=Array):
 
     def __convert_ctype__(self, obj):
         if isinstance(obj, Pointer):
-            return
+            return ArrayPointer(obj)
         elif hasattr(obj, '__iter__'):
             obj = tuple(obj)  # 先转换成开销小的元组类型
             length = len(obj)
@@ -196,7 +200,7 @@ class ProtoType(AbstractCType, real=Function):
             return cls(
                 restype, *types,
                 signature=signature, name=name,
-                cv = cv
+                cv=cv
             )
 
         if maybe_func is None:
@@ -213,4 +217,3 @@ class ProtoType(AbstractCType, real=Function):
 
     def __str__(self):
         return f"ProtoType([{', '.join(map(str, self.argtypes))}]) -> {self.restype}"
-

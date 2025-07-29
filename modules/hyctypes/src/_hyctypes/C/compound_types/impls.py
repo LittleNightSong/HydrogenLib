@@ -12,8 +12,9 @@ class Pointer[T](AbstractCData):
 
     ptr = alias['__cdata__'](mode=alias.mode.read_write)
 
-    def __init__(self, ptr):
+    def __init__(self, ptr, tp=None):
         self.ptr = ptr
+        self.type = tp
 
     def cast(self, tp):
         return cast(self, tp)
