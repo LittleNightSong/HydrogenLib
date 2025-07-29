@@ -1,3 +1,4 @@
+from .async_func import *
 from .binary_tree import *
 from .bitmap import *
 from .call_property import *
