@@ -95,7 +95,7 @@ class Time:
     __repr__ = __str__
 
 
-class Timer:
+class Stopwatch:
     def __init__(self):
         self.start_time = None
         self.end_time = None
