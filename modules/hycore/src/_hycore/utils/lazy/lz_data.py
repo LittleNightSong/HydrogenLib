@@ -12,7 +12,7 @@ class LazyData:
     def update_callable(self, callable: Callable):
         self._callable = callable
 
-    @ property
+    @property
     def value(self):
         return self.get()
 
