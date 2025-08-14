@@ -13,7 +13,7 @@ class AnnoationSupportContainerBase:
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__()
-        if kwargs.get('base'):
+        if kwargs.get('nofields'):
             return
 
         cls.__fields__ = fields = OrderedDict()  # type: OrderedDict[str, Field]

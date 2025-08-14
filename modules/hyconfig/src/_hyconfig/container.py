@@ -12,7 +12,7 @@ from .base import *
 type ConfigMetaGenerator = Callable[[], ConfigMeta]
 
 
-class HyConfig(AnnoationSupportContainerBase, base=True):
+class HyConfig(AnnoationSupportContainerBase, nofields=True):
     __meta__: ConfigMeta
     __meta_generator__: ConfigMetaGenerator = None
 
