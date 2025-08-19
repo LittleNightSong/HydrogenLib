@@ -12,31 +12,15 @@ class Time:
         self.process()
 
     def process(self):
-        flag = 0
-        while not flag:
-            flag = 1
-            if self._sec >= 60:
-                self._min += self._sec // 60
-                self._sec -= self._sec // 60 * 60
-                flag = 0
-            if self._min >= 60:
-                self._hor += self._min // 60
-                self._min -= self._min // 60 * 60
-                flag = 0
-            if self._hor >= 24:
-                self._day += self._hor // 24
-                self._hor -= self._hor // 24 * 24
-                flag = 0
-
-        self._min = int(self.min)
-        self._hor = int(self.hor)
-        self._day = int(self.day)
-
-    def toInt(self):
-        self._day = int(self.day)
-        self._hor = int(self.hor)
-        self._sec = int(self.sec)
-        self._min = int(self.min)
+        if self._sec >= 60:
+            _, self._sec = divmod(self._sec, 60)
+            self._min += _
+        if self._min >= 60:
+            _, self._min = divmod(self._min, 60)
+            self._hor += _
+        if self._hor >= 24:
+            _, self._hor = divmod(self._hor, 24)
+            self._day += _
 
     @property
     def sec(self):
@@ -55,44 +39,42 @@ class Time:
         return self._day
 
     @sec.setter
-    def sec(self, v: Union[int, float]):
+    def sec(self, v):
         self._sec = v
 
     @min.setter
-    def min(self, v: Union[int, float]):
+    def min(self, v):
         self._min = v
 
     @hor.setter
-    def hor(self, v: Union[int, float]):
+    def hor(self, v):
         self._hor = v
 
     @day.setter
-    def day(self, v: Union[int, float]):
+    def day(self, v):
         self._day = v
 
     @property
-    def time(self):
+    def time_DHMS(self):
+        """
+        获取时间
+        :return: 元组 (天, 时, 分, 秒)
+        """
         return self.day, self.hor, self.min, self.sec
 
-    @time.setter
-    def time(self, v: Union[tuple[Union[int, float], ...], list[Union[int, float], ...]]):
-        lenght = len(v)
-        if lenght >= 1:
-            self.day = v[0]
-        if lenght >= 2:
-            self.hor = v[1]
-        if lenght >= 3:
-            self.min = v[2]
-        if lenght >= 4:
-            self.sec = v[3]
-
-    def get_sec(self):
+    @property
+    def seconds(self):
+        """
+        获取秒数
+        :return: 秒数
+        """
         return self.day * 24 * 60 * 60 + self.hor * 60 * 60 + self.min * 60 + self.sec
 
     def __str__(self):
-        return f"{self.__class__.__name__}({self.get_sec()})"
+        return f"Day: {self.day}, {self.hor}:{self.min}:{self.sec}"
 
-    __repr__ = __str__
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.seconds})"
 
 
 class Stopwatch:
@@ -131,10 +113,10 @@ class IntervalRecorder:
     def record(self):
         res = time.time() - self._last_time
         self._last_time = time.time()
-        return res
+        return Time(res)
 
     def lap(self):
-        return time.time() - self._last_time
+        return Time(time.time() - self._last_time)
 
     def stop(self):
         self._running = False
