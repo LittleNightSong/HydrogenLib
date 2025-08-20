@@ -29,12 +29,9 @@ jobs:
 
       # 将构建的所有包同时上传到 github release
       - name: Upload Release Assets
-        shell: pwsh
         run: |
-          $files = Get-ChildItem -Path ./dist/*.whl
-          foreach ($file in $files) {
-              Write-Host "Uploading $file"
-              gh release upload $env:RELEASE_TAG $file.FullName
-              sleep 1
-          }
+          for f in *.whl; do
+            gh release upload "${{ github.event.release.tag_name }}" "$f"
+            sleep 1
+          done
 
