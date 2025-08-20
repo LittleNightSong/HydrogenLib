@@ -6,5 +6,36 @@ jobs:
   Build-And-Publish:
     runs-on: ubuntu-latest
     steps:
-      - name: Run build
-        uses: ./.github/workflows/.yml
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.13.5'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install uv hatch packaging 
+          pip install -r requirements.txt
+
+      - name: Build and Publish
+        run: |
+          python ./scripts/ci_publish.py
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_NAME: ${{ github.event.release.name }}
+          RELEASE_NOTES: ${{ github.event.release.body }}
+
+      # 将构建的所有包同时上传到 github release
+      - name: Upload Release Assets
+        shell: pwsh
+        run: |
+          $files = Get-ChildItem -Path ./dist/*.whl
+          foreach ($file in $files) {
+              Write-Host "Uploading $file"
+              gh release upload $env:RELEASE_TAG $file.FullName
+              sleep 1
+          }
+
