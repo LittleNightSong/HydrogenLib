@@ -17,7 +17,7 @@ class Descriptor:
     def __instance__(self, inst, owner):
         if inst not in self.__instance_mapping__:
             self.__instance_mapping__[inst] = x = self.__dspt_new__(inst)
-            x.__dspt_init__(self.__dspt_name__, inst, owner, self)
+            x.__dspt_init__(inst, owner, self.__dspt_name__, self)
         return self.__instance_mapping__[inst]
 
     def __dspt_get__(self, inst, owner) -> Any:
