@@ -14,7 +14,7 @@ class TypeRegistry[_TS, _TT=_TS]:
         for source in sources:
             if self.exists(source, target):
                 return self.get(source, target)(data)
-        return None
+        raise TypeError(f'{type(data)} cannot be cast to {target}')
 
     def register(self, source: type[_TS], target: type[_TT], method: Validator):
         if source not in self._mro:
@@ -24,12 +24,13 @@ class TypeRegistry[_TS, _TT=_TS]:
 
     def get(self, source: type[_TS], target: type[_TT]) -> Validator:
         if not self.exists(source, target):
-            return None
+            raise TypeError(f'{source} does not have a validator for {target}')
+
         return self._mro[source][target]
 
     def unregister(self, source: type[_TS], target: type[_TT]):
         if not self.exists(source, target):
-            return
+            raise TypeError(f'{source} does not have a validator for {target}')
         del self._mro[source][target]
 
     def exists(self, source: type[_TS], target: type[_TT]):
