@@ -8,6 +8,11 @@ def validator_mark(func, name=None):
     return func
 
 
+class SpecialAnnoBase:
+    def __generate_field__(self, tp, name, default):
+        return Field(tp, default=default, name=name)  # 默认行为
+
+
 class AnnoationSupportContainerBase:
     __fields__ = None  # type: OrderedDict[str, Field]
 
@@ -17,20 +22,27 @@ class AnnoationSupportContainerBase:
             return
 
         cls.__fields__ = fields = OrderedDict()  # type: OrderedDict[str, Field]
+
         for name, typ, value in iter_annotations(cls):
             if isinstance(value, Field):
                 fields[name] = value
                 continue  # 不重复创建 Field
 
-            field = Field(typ, default=value, name=name)
-            fields[name] = field
+            if isinstance(value, SpecialAnnoBase):
+                fields[name] = field = value.__generate_field__(typ, name, value)  # 使用来自 SpecialAnnoBase 生成的 Field
+                setattr(cls, name, field)
+                continue
 
+            # 正常分配 Field
+            field = Field(typ, default=value, name=name)
+
+            # 设置字段属性
+            fields[name] = field
             setattr(cls, name, field)
 
-        for name in dir(cls):
-            fnc = getattr(cls, name)
-            if hasattr(fnc, '__validator__'):
-                fields[fnc.__validator__].validator = fnc
+        for func in vars(cls).values():
+            if hasattr(func, '__validator__'):
+                fields[func.__validator__].validator = func
 
     def __iter_items(self):
         for f in self.__fields__.values():
@@ -49,7 +61,8 @@ class AnnoationSupportContainerBase:
 
 
 def update_fields_attrs(obj: AnnoationSupportContainerBase, names=None, attrs: dict=None):
-    if attrs is None: return
+    if attrs is None:
+        return
 
     fields = obj.__fields__
     names = names or fields.keys()
