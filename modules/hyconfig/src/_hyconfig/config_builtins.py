@@ -2,11 +2,12 @@ import json
 import typing
 
 from .base import *
+from .base import global_convertor as gtc
 
 
 class Model(AbstractModel):
     def __init__(self):
-        self._data = {}
+        self._data = None
 
     def get(self, key, default=None):
         return self._data.get(key, default)
@@ -32,12 +33,10 @@ class JsonBackend(AbstractBackend):
             return {}
 
     def dump(self, fp: typing.IO, obj: typing.Any) -> None:
-        json.dump(obj, fp, default=self.my_serialize)
+        json.dump(obj, fp, default=self._serialize)
 
-    def my_serialize(self, obj):
-        if isinstance(obj, AbstractModel):
-            return obj.as_dict()
-        return obj
+    def _serialize(self, obj):
+        return gtc.validate(obj, object)
 
 
 def config_validate(name: str):

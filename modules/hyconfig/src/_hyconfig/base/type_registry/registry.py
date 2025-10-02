@@ -1,23 +1,29 @@
-from typing import Callable, Any
+from typing import Callable, Any, Iterable
 
 from _hycore.utils import InstanceMapping
 
-type Validator = Callable[[Any], Any]
+type Validator[F=Any, T=Any] = Callable[[F], T]  # From To
+type Enumerator[T=Any, V=Any] = Callable[[T], Iterable[V]]
 
 
 class TypeRegistry[_TS, _TT=_TS]:
     def __init__(self, mro=None):
+        # 基本类型映射
         self._mro = mro or InstanceMapping()  # type: InstanceMapping[type[_TS], InstanceMapping[type[_TT], Validator]]
+        # 容器类型枚举器映射
+        self._container_mro = InstanceMapping()  # type: InstanceMapping[type[_TS], InstanceMapping[type[_TT], Enumerator]]
 
     def validate(self, data: object, target: type[_TT]):
-        sources = type(data).__mro__
-        targets = target.__mro__
+        return self.validator(type(data), target)(data)
+
+    def validator(self, source, target):
+        sources = source.__mro__
         for source in sources:
-            for target in targets:
-                mapping = self._mro[source]
-                if target in mapping:
-                    return mapping[target](data)
-        raise TypeError(f'{type(data)} cannot be cast to {target}')
+            if source in self._mro:
+                if target in self._mro[source]:
+                    return self._mro[source][target]
+
+        raise TypeError(f'{source} cannot be cast to {target}')
 
     def register(self, source: type[_TS], target: type[_TT], method: Validator):
         if source not in self._mro:
@@ -47,3 +53,6 @@ class TypeRegistry[_TS, _TT=_TS]:
 
     def __delitem__(self, key: tuple[type[_TS], type[_TT]]):
         self.unregister(*key)
+
+    def __contains__(self, item: tuple[type[_TS], type[_TT]]):
+        return self.exists(*item)

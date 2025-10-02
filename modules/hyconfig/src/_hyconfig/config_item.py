@@ -1,3 +1,5 @@
+from typing import Any
+
 from _hycore.utils import InstanceMapping
 from .base import AnnoationSupportContainerBase, update_fields_attrs, get_model
 from .config_builtins import Model
@@ -6,7 +8,7 @@ from .config_builtins import Model
 class ConfigItemMeta(type):
     def __init__(cls, name, bases, attrs):
         super().__init__(name, bases, attrs)
-        cls.__mapping = InstanceMapping()
+        cls.__mapping = InstanceMapping[Any, 'Middle']()
         cls.__name = name
 
     def __get__(cls, instance, owner):
@@ -17,16 +19,15 @@ class ConfigItemMeta(type):
             cls.__mapping[instance] = cls(cls.__name, instance, owner)
 
         obj = cls.__mapping[instance]
-
-        if fnc := getattr(obj, '__config_get__', None):
-            return fnc()
-
-        return obj
+        return obj.__config_get__()
 
 
 class Middle(AnnoationSupportContainerBase, metaclass=ConfigItemMeta):
     def __config_get__(self):
         return self
+
+    def __config_post_init__(self):
+        ...
 
 
 class Inline(Middle):

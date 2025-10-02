@@ -1,11 +1,13 @@
-from typing import Any
-
-from _hycore.utils import InstanceMapping
+from typing import Any, Callable
 from _hycore.better_descriptor import Descriptor, DescriptorInstance, get_descriptor_instance
-import typeguard
+from .global_ import global_convertor as gtc
+#                                   (self, value: From) -> To
+type Validator[From=Any, To=Any] = Callable[[Any, From], To]
 
 
-class FieldInstance(DescriptorInstance):
+class FieldInstance[T](DescriptorInstance):
+    validator: Validator | None
+
     def __dspt_init__(self, inst, owner, name, dspt):
         self.__self__ = inst
         self.name = name
@@ -13,16 +15,17 @@ class FieldInstance(DescriptorInstance):
         self.model = None
 
     def validate(self, value):
-        return (
-            self.validator and self.validator(self.__self__, value)
-        ) or typeguard.check_type(value, self.type)
+        if self.validator:
+            return self.validator(self, value)
+        else:
+            return gtc.validate(value, self.type)
 
     @property
-    def value(self):
+    def value(self) -> T:
         return self.model.get(self.key, self.default)
 
     @value.setter
-    def value(self, v):
+    def value(self, v: T):
         self.model.set(self.key, v)
 
     def __getattr__(self, item):
@@ -39,6 +42,8 @@ class FieldInstance(DescriptorInstance):
 
 
 class Field(Descriptor):
+    field_instance_type = FieldInstance
+
     def __init__(self, typ, *, default=None, name=None, key=None, model=None):
         super().__init__()
         self.type, self.default = typ, default
@@ -47,7 +52,7 @@ class Field(Descriptor):
 
         self.model = model
 
-        self.validator = None
+        self.validator: Validator | None = None  # 验证器, 返回转换后的值
 
     @property
     def key(self):
@@ -60,4 +65,4 @@ class Field(Descriptor):
         self.name = name
 
     def __dspt_new__(self, inst) -> DescriptorInstance:
-        return FieldInstance()
+        return self.field_instance_type()
