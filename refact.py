@@ -1,9 +1,7 @@
-import os
 import re
 import shutil
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from shutil import copy as _copy, rmtree
 from subprocess import run as _run
 
 import tomlkit
@@ -16,6 +14,8 @@ def get_package_name(project_name):
 
 
 def reset_toml_infomation(file, m: Path):
+    if m.name == 'hytools': return
+
     with open(file, "r") as f:
         data = f.read().replace('\\h', '/h')
 
@@ -24,7 +24,10 @@ def reset_toml_infomation(file, m: Path):
     project = toml['project']
 
     # reset Name
-    project['name'] = "HydrogenLib-" + m.name.removeprefix('hy').title()
+    project['name'] = project_name  = "HydrogenLib-" + m.name.title()
+
+    # reset authors
+    project['authors'] = [{'name': 'LittleSong2025', 'email': 'LittleSong2024@outlook.com'}]
 
     if 'license' in project:
         del project['license']
@@ -32,13 +35,13 @@ def reset_toml_infomation(file, m: Path):
     # reset Urls
     urls = project['urls']
     urls['Documentation'] = \
-        "https://github.com/LittleSong2024/HydrogenLib#readme"
-    urls['Issues'] = "https://github.com/LittleSong2024/HydrogenLib/issues"
-    urls['Source'] = "https://github.com/LittleSong2024/HydrogenLib"
+        "https://github.com/LittleSong2025/HydrogenLib#readme"
+    urls['Issues'] = "https://github.com/LittleSong2025/HydrogenLib/issues"
+    urls['Source'] = "https://github.com/LittleSong2025/HydrogenLib"
 
     # reset Version
     hatch = toml['tool']['hatch']
-    package_path = Path('src') / get_package_name(m.name)
+    package_path = Path('src') / get_package_name(project_name)
     hatch['version']['path'] = str(package_path / '__about__.py').replace('\\', '/')
 
     # reset Packages
@@ -89,6 +92,14 @@ def refact_import(file):
     Path(file).write_text(text)
 
 
+def create_reimport(m, lib_dir):
+    if m.name == 'hytools': return
+
+    package_name = '_' + to_name(m.name)
+    with open(lib_dir / (m.name.removeprefix('hy') + '.py'), 'w') as f:
+        f.write(f'from {package_name} import *' '\n')
+
+
 def to_name(name: str) -> str:
     return name.replace(' ', '_').replace('-', '_')
 
@@ -97,12 +108,14 @@ def main():
     cwd = Path.cwd()
     if cwd.name == 'scripts':
         cwd = cwd.parent
+
     src_dir = cwd / 'modules'
-    lib_dir = cwd / 'hydrogenlib' / 'src' / 'hydrogenlib'
+    lib_dir = cwd / 'hydrogenlib'
 
     modules = [i for i in src_dir.iterdir() if i.is_dir()]
     for m in modules:
-        reset_toml_infomation(m / 'pyproject.toml', m)  # Job 1
+        if m.name != 'tools':
+            reset_toml_infomation(m / 'pyproject.toml', m)  # Job 1
 
         try:
             copy(m / 'src' / to_name(m.name), m / 'src' / ('_' + to_name(m.name)))  # Job 2
@@ -111,6 +124,8 @@ def main():
 
         (m / 'LICENSE.txt').unlink(True)
         (m / 'README.md').write_text('')
+
+        create_reimport(m, lib_dir)
 
 
 if __name__ == '__main__':

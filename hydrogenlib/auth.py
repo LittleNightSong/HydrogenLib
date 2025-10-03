@@ -1,1 +1,1 @@
-from _hyauth.auth import *
+from _auth import *

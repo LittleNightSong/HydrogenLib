@@ -11,7 +11,9 @@ authors = [
   { name = "LittleSong2024", email = "LittleSong2024@outlook.com" },
 ]
 classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Python", "Programming Language :: Python :: 3.11", "Programming Language :: Python :: 3.12", "Programming Language :: Python :: 3.13", "Programming Language :: Python :: Implementation :: CPython", "Programming Language :: Python :: Implementation :: PyPy"]
-dependencies = []
+dependencies = [
+    "twisted>=25.5.0",
+]
 
 [project.urls]
 Documentation = "https://github.com/LittleSong2024/HydrogenLib#readme"
@@ -20,6 +22,15 @@ Source = "https://github.com/LittleSong2024/HydrogenLib"
 
 [tool.hatch.version]
 path = "hydrogenlib/__init__.py"
+
+[[tool.uv.index]]
+url = "http://mirrors.aliyun.com/pypi/simple"
+default = true
+
+[dependency-groups]
+dev = [
+    "ty>=0.0.1a21",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["hydrogenlib"]

@@ -1,2 +1,1 @@
-from _hydantic.base import *
-from _hydantic.model import *
+from _dantic import *

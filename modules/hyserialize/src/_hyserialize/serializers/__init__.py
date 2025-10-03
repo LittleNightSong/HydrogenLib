@@ -1,5 +1,0 @@
-# ---
-
-from ._json import *
-
-# ---

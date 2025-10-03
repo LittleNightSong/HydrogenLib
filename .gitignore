@@ -6,13 +6,7 @@
 
 # Files in Dev
 /.temp/
-
-/modules/hydrogenlib/_hycl/
-/modules/hydrogenlib/_hyshm/
-/modules/hydrogenlib/_hyquickapi/
-/modules/hydrogenlib/_hydownloader/
-/modules/hydrogenlib/_hytest/
-/modules/hydrogenlib/_hyargs/
-/modules/hydrogenlib/_hyfs/
+/**/.in_dev
+/**/.tests
 
 /uv.lock

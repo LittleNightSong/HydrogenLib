@@ -1,43 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module type="PYTHON_MODULE" version="4">
-  <component name="NewModuleRootManager">
-    <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/modules/hyargs/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hyauth/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hycl/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hyconfig/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hycore/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hyctypes-extra/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hyctypes/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hydemo/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hydownloader/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hylog/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hyoverload/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hypipe/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hypy/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hyquickapi/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hyre/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hyshm/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hysocket/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hytemplate/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hytest/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hythreading/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hywinreg/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hyttlcache/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hycrypto/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hyfilesystem/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hyserialize/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hynetwork/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/modules/hydantic/src" isTestSource="false" />
-      <excludeFolder url="file://$MODULE_DIR$/dist" />
-      <excludeFolder url="file://$MODULE_DIR$/.vscode" />
-      <excludeFolder url="file://$MODULE_DIR$/modules/hydrogenlib/_hycl/.old.source" />
-      <excludeFolder url="file://$MODULE_DIR$/modules/hydrogenlib/_hycl/.old.source/2024.10-" />
-      <excludeFolder url="file://$MODULE_DIR$/modules/hydrogenlib/_hycl/.old.source/2024.11.13" />
-      <excludeFolder url="file://$MODULE_DIR$/modules/hydrogenlib/_hycl/.old.source/2024.11.13-" />
-      <excludeFolder url="file://$MODULE_DIR$/.venv" />
-    </content>
-    <orderEntry type="jdk" jdkName="uv (HydrogenLib)" jdkType="Python SDK" />
-    <orderEntry type="sourceFolder" forTests="false" />
+<module classpath="CMake" type="CPP_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="Python" name="Python facet">
+      <configuration sdkName="Python 3.12 (HydrogenLib)" />
+    </facet>
   </component>
 </module>

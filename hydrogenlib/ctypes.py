@@ -1,1 +1,1 @@
-from _hyctypes.C import *
+from _ctypes import *

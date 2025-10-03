@@ -1,3 +1,3 @@
-from _hydemo.example import *
-from _hydemo.sample_data import *
-from _hydemo.scripts import *
+from _hydrogenlib_sample.example import *
+from _hydrogenlib_sample.sample_data import *
+from _hydrogenlib_sample.scripts import *

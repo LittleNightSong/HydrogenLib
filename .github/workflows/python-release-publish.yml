@@ -29,6 +29,8 @@ jobs:
 
       # 将构建的所有包同时上传到 github release
       - name: Upload Release Assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           for f in *.whl; do
             gh release upload "${{ github.event.release.tag_name }}" "$f"
