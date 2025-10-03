@@ -3,25 +3,25 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "HydrogenLib-Demo"
+name = "HydrogenLib-Struct"
 dynamic = ["version"]
 description = ''
 readme = "README.md"
 requires-python = ">=3.12"
 keywords = []
-authors = [
-  { name = "LittleSong2024", email = "LittleSong2024@outlook.com" },
-]
 classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Python", "Programming Language :: Python :: 3.11", "Programming Language :: Python :: 3.12", "Programming Language :: Python :: 3.13", "Programming Language :: Python :: Implementation :: CPython", "Programming Language :: Python :: Implementation :: PyPy"]
 dependencies = []
 
+[[project.authors]]
+name = "LittleSong2025"
+email = "LittleSong2024@outlook.com"
 [project.urls]
-Documentation = "https://github.com/LittleSong2024/HydrogenLib#readme"
-Issues = "https://github.com/LittleSong2024/HydrogenLib/issues"
-Source = "https://github.com/LittleSong2024/HydrogenLib"
+Documentation = "https://github.com/LittleSong2025/HydrogenLib#readme"
+Issues = "https://github.com/LittleSong2025/HydrogenLib/issues"
+Source = "https://github.com/LittleSong2025/HydrogenLib"
 
 [tool.hatch.version]
-path = "src/_hydemo/__about__.py"
+path = "src/_hydrogenlib_struct/__about__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/_hydemo"]
+packages = ["src/_hydrogenlib_struct"]
