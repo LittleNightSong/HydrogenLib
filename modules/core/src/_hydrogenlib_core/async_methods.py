@@ -49,6 +49,7 @@ class ProtectedTask:
     """
     受保护的任务对象,保证线程安全
     """
+
     def __init__(self, task, loop):
         self._loop: asyncio.AbstractEventLoop = loop
         self._task: asyncio.Task = task
@@ -103,7 +104,4 @@ class ThreadEventLoop:
 
     def stop(self):
         self._loop.call_soon_threadsafe(self._loop.stop)
-        self._thread.bytes_join()
-
-
-
+        self._thread.join()
