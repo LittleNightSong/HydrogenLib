@@ -57,11 +57,12 @@ def iter_attributes(obj):
         yield name, getattr(obj, name)
 
 
-class AutoSlots:
-    """
-    自动添加 __slots__
-    """
-    __slots__ = ()
+class AutoSlotsMeta(type):
+    __slots__: tuple
+    def __new__(cls, name, bases, attrs):
+        attrs["__slots__"] = tuple(attrs['__annotations__'].keys())
+        return super().__new__(cls, name, bases, attrs)
 
-    def __init_subclass__(cls, **kwargs):
-        cls.__slots__ = tuple(name for name, typ in iter_annotations(cls))
+
+class AutoSlots(metaclass=AutoSlotsMeta):
+    pass
