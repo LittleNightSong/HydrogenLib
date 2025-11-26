@@ -1,7 +1,7 @@
 import typing
 import weakref
 
-from ...typefunc.property import alias
+from ...typefunc.properties import alias
 
 if typing.TYPE_CHECKING:
     from .pool import Pool

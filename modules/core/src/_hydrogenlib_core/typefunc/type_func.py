@@ -55,3 +55,13 @@ def iter_attributes(obj):
         if name.startswith("_"):
             continue
         yield name, getattr(obj, name)
+
+
+class AutoSlots:
+    """
+    自动添加 __slots__
+    """
+    __slots__ = ()
+
+    def __init_subclass__(cls, **kwargs):
+        cls.__slots__ = tuple(name for name, typ in iter_annotations(cls))

@@ -8,7 +8,7 @@ from .function import *
 from .index_offset import *
 from .list_func import *
 from .number import *
-from .property import alias
+from .properties import alias
 from .safe_eval import *
 from .tempalte_type import *
 from .type_func import *
