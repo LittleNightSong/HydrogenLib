@@ -61,7 +61,9 @@ class AutoSlotsMeta(type):
     __slots__: tuple
 
     def __new__(cls, name, bases, attrs):
-        attrs["__slots__"] = tuple(attrs.get('__annotations__', {}).keys())
+        slots = set(attrs.get("__slots__", ()))
+        slots |= set(attrs.get('__annotations__', {}).keys())
+        attrs['__slots__'] = tuple(slots)
         return super().__new__(cls, name, bases, attrs)
 
 
