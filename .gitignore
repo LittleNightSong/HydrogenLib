@@ -1,12 +1,14 @@
 # Dist and build files
 /**/__pycache__/
-/dist/
+/**/dist/
+/**/build/
+/**/.venv/
+
+# IDE settings
 /.idea/
 /.vscode/
 
 # Files in Dev
 /.temp/
-/**/.in_dev
 /**/.tests
-
 /uv.lock
