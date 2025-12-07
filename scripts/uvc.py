@@ -8,7 +8,7 @@ uvexec = _uv.find_uv_bin()
 
 def uv(commands: list | str, cwd=None) -> sp.CompletedProcess:
     return sp.run(
-        commands, executable=uvexec, stdout=sp.PIPE, stderr=sp.STDOUT, cwd=cwd, check=True
+        commands, executable=uvexec, stdout=sp.PIPE, stderr=sp.PIPE, cwd=cwd, check=True
     )
 
 

@@ -37,14 +37,14 @@ default = true
 dev = [
     "aiohttp>=3.12.15",
     "curl-cffi>=0.13.0",
+    "hatch>=1.16.2",
     "hatchling>=1.27.0",
     "httpx>=0.28.1",
     "packaging>=25.0",
-    "pydantic>=2.12.3",
+    "pydantic",
     "tomlkit>=0.13.3",
-    "twine>=6.2.0",
-    "urllib3>=2.5.0",
-    "uv>=0.9.4",
+    "urllib3",
+    "uv",
 ]
 
 [tool.hatch.build.targets.wheel]
