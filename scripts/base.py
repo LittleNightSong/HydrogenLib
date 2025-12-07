@@ -100,3 +100,14 @@ def find_project_dir(start_dir: Path | None = None) -> Path:
         start_dir = start_dir.parent
 
     return start_dir
+
+def find_module(mname: str, project_dir: Path | None = None) -> Path | None:
+    project_dir = project_dir or find_project_dir()
+    modules = project_dir / 'modules'
+    module = modules / mname
+
+    if module.exists():
+        return module
+
+    else:
+        return None
