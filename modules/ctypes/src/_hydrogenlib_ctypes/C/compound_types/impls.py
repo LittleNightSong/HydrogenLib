@@ -2,7 +2,7 @@ import typing
 from inspect import Signature, Parameter
 
 from _hydrogenlib_core.typefunc import alias
-from _hydrogenlib_core.utils import InstanceMapping, LazyProperty
+from _hydrogenlib_core.utils import InstanceMapping, lazy_property
 from .base import *
 from ..basic_types.type_realities import ubyte
 
@@ -192,7 +192,7 @@ class Function[*Targs, Tret]:
 
     _restype = alias['_prototype']['restype']
 
-    @LazyProperty
+    @lazy_property
     def _signature(self):
         if self._signature_:
             return self._signature_

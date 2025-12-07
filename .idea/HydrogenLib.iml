@@ -1,8 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module classpath="CMake" type="CPP_MODULE" version="4">
-  <component name="FacetManager">
-    <facet type="Python" name="Python facet">
-      <configuration sdkName="Python 3.12 (HydrogenLib)" />
-    </facet>
+<module type="CPP_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/modules/anydantic/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/auth/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/config/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/core/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/crypto/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/ctypes/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/ipc/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/quickapi/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/resource-system/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/sample/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/winreg/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/httpcache/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/.venv" />
+    </content>
+    <orderEntry type="jdk" jdkName="Python 3.13 (HydrogenLib)" jdkType="Python SDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

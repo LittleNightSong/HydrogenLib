@@ -4,71 +4,13 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from subprocess import run as _run
 
-import tomlkit
+from scripts.base import reset_toml_infomation
 
 threadpool = ThreadPoolExecutor(max_workers=128)
 
 
 def get_package_name(project_name):
     return '_' + project_name.replace('-', '_').lower()
-
-
-def reset_toml_infomation(file, m: Path):
-    if m.name == 'hytools': return
-
-    with open(file, "r") as f:
-        data = f.read().replace('\\h', '/h')
-
-    toml = tomlkit.loads(data)  # type: tomlkit.TOMLDocument
-
-    project = toml['project']
-
-    # reset Name
-    project['name'] = project_name  = "HydrogenLib-" + m.name.title()
-
-    # reset authors
-    project['authors'] = [{'name': 'LittleSong2025', 'email': 'LittleSong2024@outlook.com'}]
-
-    if 'license' in project:
-        del project['license']
-
-    # reset Urls
-    urls = project['urls']
-    urls['Documentation'] = \
-        "https://github.com/LittleSong2025/HydrogenLib#readme"
-    urls['Issues'] = "https://github.com/LittleSong2025/HydrogenLib/issues"
-    urls['Source'] = "https://github.com/LittleSong2025/HydrogenLib"
-
-    # reset Version
-    hatch = toml['tool']['hatch']
-    package_path = Path('src') / get_package_name(project_name)
-    hatch['version']['path'] = str(package_path / '__about__.py').replace('\\', '/')
-
-    # reset Packages
-    hatch['build'] = {
-        "targets": {
-            'wheel': {
-                "packages": [str(package_path).replace('\\', '/')]
-            }
-        }
-    }
-
-    # reset require-python
-    project['requires-python'] = ">=3.12"  # 因为使用了 3.12 的类型注解语法
-
-    # reset classifiers
-    project['classifiers'] = [
-        "Development Status :: 3 - Alpha",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3.11",
-        "Programming Language :: Python :: 3.12",
-        "Programming Language :: Python :: 3.13",
-        "Programming Language :: Python :: Implementation :: CPython",
-        "Programming Language :: Python :: Implementation :: PyPy",
-    ]
-
-    with open(file, "w") as f:
-        tomlkit.dump(toml, f)
 
 
 def run(*args, **kwargs):

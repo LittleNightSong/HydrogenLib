@@ -8,12 +8,18 @@ dynamic = ["version"]
 requires-python = ">=3.12"
 keywords = []
 authors = [
-  { name = "LittleSong2024", email = "LittleSong2024@outlook.com" },
+  { name = "LittleSong2025", email = "LittleSong2024@outlook.com" },
 ]
 classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Python", "Programming Language :: Python :: 3.11", "Programming Language :: Python :: 3.12", "Programming Language :: Python :: 3.13", "Programming Language :: Python :: Implementation :: CPython", "Programming Language :: Python :: Implementation :: PyPy"]
 dependencies = [
-    "twisted>=25.5.0",
+    "hydrogenlib-core",
+#    "hydrogenlib-tools",
+#    "hydrogenlib-ctypes",
+#    "hydrogenlib-quickapi",
+#    "hydrogenlib-resource-system"
 ]
+
+import-names = ["hydrogenlib"]
 
 [project.urls]
 Documentation = "https://github.com/LittleSong2024/HydrogenLib#readme"
@@ -29,7 +35,16 @@ default = true
 
 [dependency-groups]
 dev = [
-    "ty>=0.0.1a21",
+    "aiohttp>=3.12.15",
+    "curl-cffi>=0.13.0",
+    "hatchling>=1.27.0",
+    "httpx>=0.28.1",
+    "packaging>=25.0",
+    "pydantic>=2.12.3",
+    "tomlkit>=0.13.3",
+    "twine>=6.2.0",
+    "urllib3>=2.5.0",
+    "uv>=0.9.4",
 ]
 
 [tool.hatch.build.targets.wheel]

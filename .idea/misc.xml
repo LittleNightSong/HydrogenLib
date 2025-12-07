@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Black">
-    <option name="sdkName" value="Python 3.12 (HydrogenLib)" />
+    <option name="sdkName" value="Python 3.13 (HydrogenLib)" />
   </component>
   <component name="CMakePythonSetting">
-    <option name="pythonIntegrationState" value="YES" />
-  </component>
-  <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$/modules/hysharedmemory/src/.in_dev">
-    <contentRoot DIR="$PROJECT_DIR$" />
+    <option name="pythonIntegrationState" value="NO" />
   </component>
   <component name="CidrRootsConfiguration">
     <sourceRoots>
+      <file path="$PROJECT_DIR$/modules/anydantic/src" />
       <file path="$PROJECT_DIR$/modules/argsparser/src" />
       <file path="$PROJECT_DIR$/modules/auth/src" />
       <file path="$PROJECT_DIR$/modules/binstruct/src" />
@@ -18,14 +16,12 @@
       <file path="$PROJECT_DIR$/modules/core/src" />
       <file path="$PROJECT_DIR$/modules/crypto/src" />
       <file path="$PROJECT_DIR$/modules/ctypes/src" />
-      <file path="$PROJECT_DIR$/modules/filesystem/src" />
       <file path="$PROJECT_DIR$/modules/hyargs/src" />
       <file path="$PROJECT_DIR$/modules/hyauth/src" />
       <file path="$PROJECT_DIR$/modules/hyconfig/src" />
       <file path="$PROJECT_DIR$/modules/hycore/src" />
       <file path="$PROJECT_DIR$/modules/hycrypto/src" />
       <file path="$PROJECT_DIR$/modules/hyctypes/src" />
-      <file path="$PROJECT_DIR$/modules/hydantic/src" />
       <file path="$PROJECT_DIR$/modules/hydownloader/src" />
       <file path="$PROJECT_DIR$/modules/hyfilesystem/src" />
       <file path="$PROJECT_DIR$/modules/hyquickapi/src" />
@@ -34,14 +30,17 @@
       <file path="$PROJECT_DIR$/modules/hystruct/src" />
       <file path="$PROJECT_DIR$/modules/hythreading/src" />
       <file path="$PROJECT_DIR$/modules/hywinreg/src" />
+      <file path="$PROJECT_DIR$/modules/ipc/src" />
       <file path="$PROJECT_DIR$/modules/quickapi/src" />
       <file path="$PROJECT_DIR$/modules/remote/src" />
       <file path="$PROJECT_DIR$/modules/sample/src" />
       <file path="$PROJECT_DIR$/modules/threading/src" />
+      <file path="$PROJECT_DIR$/modules/vfs/src" />
       <file path="$PROJECT_DIR$/modules/winreg/src" />
+      <file path="$PROJECT_DIR$/modules/resource-system/src" />
     </sourceRoots>
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="uv (HydrogenLib)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.13 (HydrogenLib)" project-jdk-type="Python SDK" />
   <component name="PythonCompatibilityInspectionAdvertiser">
     <option name="version" value="3" />
   </component>

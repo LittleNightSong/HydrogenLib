@@ -1,9 +1,10 @@
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "HydrogenLib-Core"
+name = "Hydrogenlib-Resource-System"
 dynamic = ["version"]
 description = ''
 readme = "README.md"
@@ -11,14 +12,7 @@ requires-python = ">=3.12"
 keywords = []
 classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Python", "Programming Language :: Python :: 3.11", "Programming Language :: Python :: 3.12", "Programming Language :: Python :: 3.13", "Programming Language :: Python :: Implementation :: CPython", "Programming Language :: Python :: Implementation :: PyPy"]
 dependencies = [
-  "bitarray~=3.0",
-  "jsonpickle~=3.3",
-  "ping3~=4.0",
-  "psutil~=6.0",
-  "rich~=14.0",
-  "aiofiles>=24.1.0",
-  "anyio>=4.11.0",
-  "asyncstdlib>=3.13.1"
+    "fs ~= 2.4.16"
 ]
 
 [[project.authors]]
@@ -30,7 +24,8 @@ Issues = "https://github.com/LittleSong2025/HydrogenLib/issues"
 Source = "https://github.com/LittleSong2025/HydrogenLib"
 
 [tool.hatch.version]
-path = "src/_hydrogenlib_core/__about__.py"
+path = "src/_hydrogenlib_resource_system/__about__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/_hydrogenlib_core"]
+packages = ["src/_hydrogenlib_resource_system"]
+

@@ -10,11 +10,18 @@ readme = "README.md"
 requires-python = ">=3.12"
 keywords = []
 classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Python", "Programming Language :: Python :: 3.11", "Programming Language :: Python :: 3.12", "Programming Language :: Python :: 3.13", "Programming Language :: Python :: Implementation :: CPython", "Programming Language :: Python :: Implementation :: PyPy"]
-dependencies = []
+dependencies = [
+    "asyncstdlib>=3.13.1",
+    "yarl>=1.22.0",
+]
 
 [[project.authors]]
 name = "LittleSong2025"
 email = "LittleSong2024@outlook.com"
+
+[[tool.uv.index]]
+url = "http://mirrors.aliyun.com/pypi/simple"
+default = true
 [project.urls]
 Documentation = "https://github.com/LittleSong2025/HydrogenLib#readme"
 Issues = "https://github.com/LittleSong2025/HydrogenLib/issues"
