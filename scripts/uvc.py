@@ -1,4 +1,5 @@
 import subprocess as sp
+from os import PathLike
 
 import uv as _uv
 
@@ -11,8 +12,8 @@ def uv(commands: list | str, cwd=None) -> sp.CompletedProcess:
     )
 
 
-def build():
-    return uv(["build"])
+def build(project_dir: PathLike[str]):
+    return uv(["build"], cwd=project_dir)
 
 
 def install(modules: list[str]):
