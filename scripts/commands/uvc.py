@@ -22,3 +22,7 @@ def install(modules: list[str]):
 
 def uninstall(modules: list[str]):
     return uv(["uninstall", *modules])
+
+
+def publish(module_dir):
+    return uv(["publish"], cwd=module_dir)

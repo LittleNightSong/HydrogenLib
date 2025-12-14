@@ -1,36 +1,75 @@
+import dataclasses
+import os
 import subprocess as sp
 import sys
 
-import rich
-import rich.traceback
+from packaging.version import Version
 from rich import print
 
-from scripts.base import convert_to_module_name, convert_to_package_name, find_project_dir, find_module
-from pathlib import Path
-from scripts import uvc
+from scripts.commands import hatchc, uvc
+from scripts.base import find_project_dir, find_module, Console
 
+
+@dataclasses.dataclass
+class BuildConfig:
+    name: str
+    version: str | None | Version
+    path: os.PathLike[str]
+
+
+def parse_build_config(arg: str):
+    if "==" in arg:
+        name, ver = arg.split("==")
+        return name.lower(), Version(ver)
+
+    else:
+        return arg.lower(), None
 
 
 def main():
-    modules = sys.argv[1::]
+    builds = sys.argv[1::]
+    console = Console()
     project_dir = find_project_dir()
 
     vaild_modules = []
 
-    for module_name in modules:
-        module_name = module_name.lower()
+    for build_string in builds:
+        module_name, module_version = parse_build_config(build_string)
+
         module = find_module(module_name, project_dir)
         if module is None:
-            print(f"[red]Error: module '{module_name}' not found[/red]")
-            exit(1)
+            console.error('Module', module_name, "not found")
+        else:
+            print(f"Found module [bold]{module_name}[/bold]")
+            vaild_modules.append(
+                BuildConfig(
+                    module_name, module_version, module
+                )
+            )
 
-        print(f"Found module [bold]{module_name}[/bold]")
+    for bc in vaild_modules:
+        name, ver, module = bc.name, bc.version, bc.path
 
-        vaild_modules.append((module_name, module))
+        if ver:
+            try:
+                current_ver = hatchc.get_version(module)
+                if ver not in {"patch", 'major', 'minor'}:
 
-    for name, module in vaild_modules:
+                    if current_ver == ver:
+                        console.info(f"Module [bold]{name}[/bold] is [green]up-to-date[/green]")
+                    elif current_ver < ver:
+                        hatchc.set_version(module, str(ver))
+                        console.info(f"Module [bold]{name}[/bold] is [green]{ver}[/green]")
+                    else:
+                        console.error(f"Module [bold]{name}[/bold] is not [red]up-to-date[red]")
+                else:
+                    hatchc.set_version(module, str(ver))
+                    console.info(f"Module [bold]{name}[/bold] is [green]{ver}[/green]")
+            except sp.CalledProcessError as e:
+                console.error("[red]Cannot set info successfully[/red]")
+
+
         print(f'( {name} )\t\t[bold]Building...[/bold]')
-
         try:
             uvc.build(module)
             print(f"( {name} )\t\t[green]Build successful[/green]")
@@ -41,4 +80,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

@@ -1,5 +1,9 @@
+import contextlib
+import sys
 from collections import deque
 from pathlib import Path
+
+from rich import print
 
 
 # def reset_toml_infomation(file, m: Path):
@@ -111,3 +115,23 @@ def find_module(mname: str, project_dir: Path | None = None) -> Path | None:
 
     else:
         return None
+
+
+class Console:
+    def error(self, *msg, exit=1):
+        print('[red]Error:[/red]', *msg, file=sys.stderr)
+
+        if exit is not None:
+            sys.exit(exit)
+
+    def info(self, *msg):
+        print('[green]Info:[/green]', *msg, file=sys.stderr)
+
+    @contextlib.contextmanager
+    def status(self, msg):
+        try:
+            print(msg, '...', file=sys.stderr, end='')
+            yield
+            print('[bold]Done![/bold]')
+        except Exception:
+            print("[red][bold]Failed![/bold][/red]")
