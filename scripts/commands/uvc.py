@@ -8,11 +8,11 @@ uvexec = _uv.find_uv_bin()
 
 def uv(commands: list | str, cwd=None) -> sp.CompletedProcess:
     return sp.run(
-        ["uv", *commands], stdout=sp.PIPE, stderr=sp.PIPE, cwd=cwd, check=True
+        [uvexec, *commands], stdout=sp.PIPE, stderr=sp.PIPE, cwd=cwd, check=True
     )
 
 
-def build(project_dir: PathLike[str]):
+def build(project_dir: PathLike[str] | str):
     return uv(["build"], cwd=project_dir)
 
 

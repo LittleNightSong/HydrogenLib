@@ -2,6 +2,7 @@ import contextlib
 import sys
 from collections import deque
 from pathlib import Path
+from typing import Iterable
 
 from rich import print
 
@@ -97,13 +98,32 @@ def convert_to_module_name(name: str):
     return name.title()
 
 
-def find_project_dir(start_dir: Path | None = None) -> Path:
+project_dir = None
+
+
+def find_project_dir(start_dir: Path | None = None) -> Path | None:
+    global project_dir
+
+    if project_dir is not None:
+        return project_dir
+
     start_dir = start_dir or Path.cwd()
 
     while start_dir.name != 'HydrogenLib':
+        last_dir = start_dir
         start_dir = start_dir.parent
 
-    return start_dir
+        if last_dir == start_dir:
+            return None
+
+    project_dir = start_dir
+    return project_dir
+
+
+def clear_runtime_cache():
+    global project_dir
+    project_dir = None
+
 
 def find_module(mname: str, project_dir: Path | None = None) -> Path | None:
     project_dir = project_dir or find_project_dir()
@@ -116,8 +136,25 @@ def find_module(mname: str, project_dir: Path | None = None) -> Path | None:
     else:
         return None
 
+def iter_modules(project_dir: Path | None = None) -> Iterable[Path]:
+    if project_dir is None:
+        project_dir = find_project_dir()
+
+    modules = project_dir / 'modules'
+    return filter(
+        lambda m: (m.is_dir() and (m / 'pyproject.toml').exists()),
+        modules.iterdir()
+    )
+
 
 class Console:
+    _instance: 'Console' = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
     def error(self, *msg, exit=1):
         print('[red]Error:[/red]', *msg, file=sys.stderr)
 
@@ -135,3 +172,6 @@ class Console:
             print('[bold]Done![/bold]')
         except Exception:
             print("[red][bold]Failed![/bold][/red]")
+
+
+console = Console()
