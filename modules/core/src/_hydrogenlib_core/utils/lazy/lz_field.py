@@ -1,13 +1,12 @@
-from typing import Callable, Self
+from typing import Callable, Self, Any
 
 from ..instance_dict import InstanceMapping
 
 
 class lazy_property[T]:
-    def __init__(self, loader: Callable[[Self], T] = None):
-        super().__init__()
+    def __init__(self, loader: Callable[[...], T] = None):
         self._loader = loader
-        self._values = InstanceMapping()
+        self._values = InstanceMapping[Any, T]()
 
     def __get__(self, inst, owner) -> T:
         if inst in self._values:
@@ -18,9 +17,3 @@ class lazy_property[T]:
         else:
             raise AttributeError(f"'{inst.__class__.__name__}' object has no attribute '{self.__name__}'")
 
-    def __set__(self, inst, value: T | None):
-        if value is None:
-            del self._values[inst]
-            return
-
-        self._values[inst] = value
