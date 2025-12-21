@@ -3,73 +3,49 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "HydrogenLib-Next"
+name = "HydrogenLib-NEXT"
 dynamic = ["version"]
-description = ''
-readme = "README.md"
-requires-python = ">=3.7.0"
+requires-python = ">=3.12"
 keywords = []
 authors = [
-    { name = "LittleSong2024", email = "LittleSong2024@outlook.com" },
+  { name = "LittleSong2025", email = "LittleSong2024@outlook.com" },
 ]
-classifiers = [
-    "Development Status :: 4 - Beta",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: Implementation :: CPython",
+classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Python", "Programming Language :: Python :: 3.11", "Programming Language :: Python :: 3.12", "Programming Language :: Python :: 3.13", "Programming Language :: Python :: Implementation :: CPython", "Programming Language :: Python :: Implementation :: PyPy"]
+dependencies = [
+    "hydrogenlib-core",
+#    "hydrogenlib-tools",
+#    "hydrogenlib-ctypes",
+#    "hydrogenlib-quickapi",
+#    "hydrogenlib-resource-system"
 ]
 
-dependencies = [
-    "jsonpickle >= 3.3.0",
-    "pyaes >= 1.6.0",
-    "rsa >= 4.9",
-    "psutil >= 6.0.0",
-    "rich >= 13.6.0",
-    "ping3 >= 4.0.0",
-    "bitarray",
-    "natsort",
-]
+import-names = ["hydrogenlib"]
 
 [project.urls]
 Documentation = "https://github.com/LittleSong2024/HydrogenLib#readme"
 Issues = "https://github.com/LittleSong2024/HydrogenLib/issues"
 Source = "https://github.com/LittleSong2024/HydrogenLib"
 
-
 [tool.hatch.version]
-path = "src/hydrogenlib/__about__.py"
+path = "hydrogenlib/__init__.py"
 
-[tool.hatch.envs.types]
-extra-dependencies = [
-    "mypy>=1.0.0",
+[[tool.uv.index]]
+url = "https://mirrors.aliyun.com/pypi/simple"
+default = true
+
+[dependency-groups]
+dev = [
+    "aiohttp>=3.12.15",
+    "curl-cffi>=0.13.0",
+    "hatch>=1.16.2",
+    "hatchling>=1.27.0",
+    "httpx>=0.28.1",
+    "packaging>=25.0",
+    "pydantic",
+    "tomlkit>=0.13.3",
+    "urllib3",
+    "uv",
 ]
-[tool.hatch.envs.types.scripts]
-check = "mypy --install-types --non-interactive {args:src/hydrolib tests}"
-
-[tool.coverage.run]
-source_pkgs = ["hydrogenlib", "tests"]
-branch = true
-parallel = true
-omit = [
-    "src/hydrogenlib/__about__.py",
-]
-
-[tool.coverage.paths]
-hydrogenlib = ["src/hydrogenlib", "*/hydrogenlib/src/hydrogenlib"]
-tests = ["tests", "*/hydrogenlib/tests"]
-
-[tool.coverage.report]
-exclude_lines = [
-    "no cov",
-    "if __name__ == .__main__.:",
-    "if TYPE_CHECKING:",
-]
-
-[tool.hatch.build]
-target = "wheel"
 
 [tool.hatch.build.targets.wheel]
-packages = ['src/hydrogenlib']
-
-[project.scripts]
-hydrogen-tools = "hydrolib.scripts.enter:main"
+packages = ["hydrogenlib"]

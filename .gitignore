@@ -1,17 +1,14 @@
 # Dist and build files
 /**/__pycache__/
-/dist/
+/**/dist/
+/**/build/
+/**/.venv/
+
+# IDE settings
 /.idea/
 /.vscode/
 
 # Files in Dev
 /.temp/
-
-/src/hybitmap/
-
-/src/hydrogenlib/_hycl/
-/src/hydrogenlib/_hyshm/
-/src/hydrogenlib/_hyhttpapi/
-/src/hydrogenlib/_hydownloader/
-/src/hydrogenlib/_hytest/
-/src/hydrogenlib/_hyargs/
+/**/.tests
+/uv.lock

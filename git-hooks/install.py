@@ -1,6 +1,6 @@
 import fnmatch
 
-from src.hydrogenlib.hycore import listdir, copyfile
+from modules.hydrogenlib.hycore import listdir, copyfile
 
 if __name__ == '__main__':
     for file in listdir('.'):

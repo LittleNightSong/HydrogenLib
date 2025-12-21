@@ -1,0 +1,5 @@
+bitarray==3.0.0
+jsonpickle==3.3.0
+ping3==4.0.8
+psutil==6.0.0
+rich==14.0.0

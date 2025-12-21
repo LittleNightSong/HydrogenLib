@@ -1,2 +1,0 @@
-from ._hyconfig import *
-

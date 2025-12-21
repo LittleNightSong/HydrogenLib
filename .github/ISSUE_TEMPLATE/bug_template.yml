@@ -1,4 +1,5 @@
 name: Bug 报告
+description: 描述你的问题
 labels:
   - bug
 

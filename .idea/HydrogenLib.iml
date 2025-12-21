@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module type="PYTHON_MODULE" version="4">
+<module type="CPP_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
-      <excludeFolder url="file://$MODULE_DIR$/dist" />
-      <excludeFolder url="file://$MODULE_DIR$/src/hydrolib/hyconfig/.old.source/2024.10-" />
-      <excludeFolder url="file://$MODULE_DIR$/src/hydrolib/hyconfig/.old.source/2024.11.13" />
-      <excludeFolder url="file://$MODULE_DIR$/src/hydrolib/hyconfig/.old.source/2024.11.13-" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/anydantic/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/auth/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/config/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/core/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/crypto/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/ctypes/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/ipc/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/quickapi/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/resource-system/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/sample/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/winreg/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/modules/httpcache/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/.venv" />
     </content>
-    <orderEntry type="jdk" jdkName="HydrogenLib" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.13 (HydrogenLib)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-  </component>
-  <component name="PackageRequirementsSettings">
-    <option name="removeUnused" value="true" />
-  </component>
-  <component name="PyDocumentationSettings">
-    <option name="format" value="PLAIN" />
-    <option name="myDocStringFormat" value="Plain" />
   </component>
 </module>

@@ -1,0 +1,39 @@
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  Build-And-Publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.13.5'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install uv hatch packaging
+
+      - name: Build and Publish
+        run: |  # 这里调用脚本, 上传到 pypi
+          python ./scripts/ci_publish.py
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_NAME: ${{ github.event.release.name }}
+          RELEASE_NOTES: ${{ github.event.release.body }}
+
+      # 将构建的所有包同时上传到 github release
+      - name: Upload Release Assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for f in dist/*.whl; do
+            gh release upload "${{ github.event.release.tag_name }}" "$f"
+            sleep 1
+          done
+
