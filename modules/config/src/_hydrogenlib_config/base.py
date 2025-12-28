@@ -54,7 +54,7 @@ class ConfigBase(core.base.ConfigBase, middle=True):
                 del mixin_ins
 
     @classmethod
-    def load_from_obj(cls, obj: dict | tuple[tuple[str, Any], ...], extra='allow'):
+    def from_obj(cls, obj: dict | tuple[tuple[str, Any], ...], extra='allow'):
         obj = dict(obj)
         config = cls()
 
@@ -71,15 +71,6 @@ class ConfigBase(core.base.ConfigBase, middle=True):
                 raise ValueError(f"Extra fields: {list(obj.keys())}")
 
         return config
-
-    @classmethod
-    def load_from_io(cls, io, format='json'):
-        if format == 'json':
-            return cls.load_from_obj(
-                json.load(io)
-            )
-        else:
-            raise NotImplementedError("Formats not implemented, except 'json'")
 
     def to_dict(self):
         return {
