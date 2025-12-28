@@ -1,11 +1,18 @@
 import shutil
+import sys
 
-from scripts.commands import uvc
+from scripts.commands import uvc, hatchc
 from scripts.base import find_project_dir, console, iter_modules, convert_to_package_name, project_dir
 
 
 def main():
     # 处理 re-import 文件
+    ver = sys.argv[1] if len(sys.argv) > 1 else None
+
+    if ver:
+        with console.status('Setting version'):
+            hatchc.set_version(project_dir, ver)
+
     for module in iter_modules():
         target_reiport_file = find_project_dir() / 'hydrogenlib' / (module.name + '.py')
         if (re_import_file := (module / 're-import.py')).exists():

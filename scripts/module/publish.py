@@ -12,8 +12,9 @@ def main():
 
     modules = sys.argv[1:]
     for mname in modules:
-        module, ver = libbuild.parse_build_config(mname)
-        uvc.publish(module)
+        with console.status("Publishing module %s" % mname):
+            mname, ver = libbuild.parse_build_config(mname)
+            uvc.publish(scripts.base.find_module(mname))
 
 
 if __name__ == "__main__":

@@ -24,5 +24,5 @@ def uninstall(modules: list[str]):
     return uv(["uninstall", *modules])
 
 
-def publish(module_dir):
-    return uv(["publish"], cwd=module_dir)
+def publish(module_dir, dist_dir='dist/*'):
+    return uv(["publish", module_dir / dist_dir])

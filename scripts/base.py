@@ -4,6 +4,7 @@ from collections import deque
 from pathlib import Path
 from typing import Iterable
 
+import rich.traceback
 from rich import print
 
 
@@ -132,7 +133,6 @@ def find_module(mname: str, project_dir: Path | None = None) -> Path | None:
 
     if module.exists():
         return module
-
     else:
         return None
 
@@ -165,13 +165,23 @@ class Console:
         print('[green]Info:[/green]', *msg, file=sys.stderr)
 
     @contextlib.contextmanager
-    def status(self, msg):
+    def status(self, msg, exit=1, print_reason=True, print_traceback=False):
         try:
             print(msg, '...', file=sys.stderr, end='')
             yield
-            print('[bold]Done![/bold]')
-        except Exception:
-            print("[red][bold]Failed![/bold][/red]")
+            print('[green]Success![/green]')
+        except Exception as e:
+            print("[red][bold]Failed![/bold][/red]", end='')
+            if print_reason:
+                print(f'    [red]{e.__class__.__name__}: {e}[/red]', sep='')
+            if print_traceback:
+                print()
+                print(
+                    rich.traceback.Traceback.extract(type(e), e, e.__traceback__)
+                )
+            if exit:
+                sys.exit(exit)
+            print()
 
 
 console = Console()
