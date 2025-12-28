@@ -2,6 +2,8 @@ import fractions
 from collections import deque
 from collections.abc import Iterable
 
+from hatch.cli import self
+
 
 def d1(value, lenght):
     return [value for _ in range(lenght)]
@@ -76,51 +78,53 @@ def split(ls, split_nums: Iterable[int]):
         cursor += l
 
 
+def _get_range_length(start, stop, step):
+    return (stop - start) // step
+
+
 class _ListConcater:
     """
     逻辑连接两个列表
     """
+    __slots__ = ('lists', 'lengths')
 
     def __init__(self, *ls):
-        self.ls_list = ls
-        self.lg_list = []
+        self.lists = ls
+        self.lengths = []
 
         self.flush()
 
     def flush(self):
-        self.lg_list = [len(i) for i in self.ls_list]
+        self.lengths = [len(i) for i in self.lists]
 
     def _find_list(self, idx, num):
         if num < 0:
-            num += sum(self.lg_list)
-        if idx >= len(self.lg_list):
+            num += sum(self.lengths)
+        if idx >= len(self.lengths):
             raise IndexError('index out of the range')
-        if num >= self.lg_list[idx]:
-            return self._find_list(idx + 1, num - self.lg_list[idx])
+        if num >= self.lengths[idx]:
+            return self._find_list(idx + 1, num - self.lengths[idx])
         return idx, num
 
     def _get(self, idx):
         last_idx, list_idx = self._find_list(0, idx)
-        return self.ls_list[last_idx][list_idx]
+        return self.lists[last_idx][list_idx]
 
     def _set(self, idx, value):
         last_idx, list_idx = self._find_list(0, idx)
-        self.ls_list[last_idx][list_idx] = value
-
-    def _get_range_length(self, start, stop, step):
-        return (stop - start) // step
+        self.lists[last_idx][list_idx] = value
 
     def append(self, v):
-        self.ls_list[-1].append(v)
+        self.lists[-1].append(v)
         self.flush()
 
     def extend(self, v):
-        self.ls_list[-1].extend(v)
+        self.lists[-1].extend(v)
         self.flush()
 
     def list(self):
         return [
-            item for ls in self.ls_list for item in ls
+            item for ls in self.lists for item in ls
         ]
 
     def __getitem__(self, key):
@@ -141,13 +145,13 @@ class _ListConcater:
             start = key.start or 0
             stop = key.stop or len(self)
             step = key.step or 1
-            if not len(value) == self._get_range_length(start, stop, step):
+            if not len(value) == _get_range_length(start, stop, step):
                 raise ValueError('length of value is not equal to the range')
             for si, oi in zip(range(start, stop, step), range(len(value))):
                 self._set(si, value[oi])
 
     def __len__(self):
-        return sum(self.lg_list)
+        return sum(self.lengths)
 
 
 def concat(*ls):
@@ -165,18 +169,19 @@ class _ListFillConcater:
         列表的元数据以main_ls为基准
         len(fill_concat_ls)  # 10
     """
+    __slots__ = ('ls_fill', 'ls_main')
 
     def __init__(self, fill_ls, main_ls):
-        self.ls_fill, self.main_ls = fill_ls, main_ls
+        self.ls_fill, self.ls_main = fill_ls, main_ls
 
     def _get(self, item):
         if item >= len(self):
             raise IndexError('index out of the range')
         if hasindex(self.ls_fill, item):
             return self.ls_fill[item]
-        if not hasindex(self.main_ls, item):
+        if not hasindex(self.ls_main, item):
             raise IndexError('index out of the range')
-        return self.main_ls[item]
+        return self.ls_main[item]
 
     def __getitem__(self, item):
         if isinstance(item, int):
@@ -197,7 +202,7 @@ class _ListFillConcater:
         raise NotImplementedError('Fill concat cannot be modified')
 
     def __len__(self):
-        return len(self.main_ls)
+        return len(self.ls_main)
 
 
 def fill_concat(fill_ls, main_ls):
@@ -205,15 +210,16 @@ def fill_concat(fill_ls, main_ls):
 
 
 class _ListReplaceConcater:
+    __slots__ = ('ls_replaced', 'ls_main', 'ls_sum')
     class ReplaceIndex:
         def __init__(self, value, length):
             self.value = value
             self.length = length
 
     def __init__(self, main_ls):
-        self.main_ls = main_ls
-        self.replace_ls = []
-        self.fore_sum = deque([0])  # 前缀和
+        self.ls_main = main_ls
+        self.ls_replaced = []
+        self.ls_sum = deque([0])  # 前缀和
 
     def list(self):
         return [
@@ -221,24 +227,24 @@ class _ListReplaceConcater:
         ]
 
     def _replace_length(self):
-        return self.fore_sum[-1]
+        return self.ls_sum[-1]
 
     def replace_one(self, value, length):
         """
         将一个值作为逻辑代替项代替main_ls中的length个项
         """
-        self.replace_ls.append(self.ReplaceIndex(value, length))
-        self.fore_sum.append(
-            self.fore_sum[-1] + length - 1
+        self.ls_replaced.append(self.ReplaceIndex(value, length))
+        self.ls_sum.append(
+            self.ls_sum[-1] + length - 1
         )
 
     def _get(self, item):
         if item >= len(self):
             raise IndexError('index out of the range')
-        if item < len(self.replace_ls):
-            return self.replace_ls[item].value
+        if item < len(self.ls_replaced):
+            return self.ls_replaced[item].value
         else:
-            return self.main_ls[item + self._replace_length()]
+            return self.ls_main[item + self._replace_length()]
 
     def __getitem__(self, item):
         if isinstance(item, int):
@@ -250,9 +256,15 @@ class _ListReplaceConcater:
             return [self._get(i) for i in range(start, stop, step)]
 
     def __len__(self):
-        s = sum(i.length - 1 for i in self.replace_ls)
-        return len(self.main_ls) - s  # 减去逻辑替换项的长度
+        s = sum(i.length - 1 for i in self.ls_replaced)
+        return len(self.ls_main) - s  # 减去逻辑替换项的长度
 
 
 def replace_concat(main_ls):
     return _ListReplaceConcater(main_ls)
+
+
+def multi_get_item(obj, *items):
+    for item in items:
+        yield obj[item]
+

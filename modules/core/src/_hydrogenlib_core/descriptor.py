@@ -5,7 +5,7 @@ from typing import Any
 
 
 class Descriptor:
-    __instance_mapping__: 'InstanceMapping' = None
+    __instance_mapping__: InstanceMapping = None
     __dspt_name__ = None
     __dspt_return_self__ = True
 

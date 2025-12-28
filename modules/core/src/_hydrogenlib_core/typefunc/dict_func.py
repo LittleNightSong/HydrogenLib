@@ -2,8 +2,10 @@ from typing import MutableMapping
 
 
 class ObjectiveDict:
+    __slots__ = ("_dict",)
+
     def __init__(self, **kwargs):
-        object.__setattr__(self, "_dict", kwargs)
+        super().__setattr__(self, "_dict", kwargs)
 
     def __getattr__(self, item):
         return self[item]
@@ -17,14 +19,13 @@ class ObjectiveDict:
     def __setitem__(self, key, value):
         self._dict[key] = value
 
-    @property
     def get_dict(self):
         return self._dict
 
 
-def build_from_tuple(tuple, *keys):
+def build_from_tuple(values, *keys):
     return {
-        k: v for k, v in zip(keys, tuple)
+        k: v for k, v in zip(keys, values)
     }
 
 

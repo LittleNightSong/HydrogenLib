@@ -13,7 +13,7 @@ class call_property[T]:
 
     除了读取值的逻辑与 ``@property`` 装饰器不同, 写入和删除都可以沿用 ``@property`` 的逻辑
 
-    比如: ``.property(value)`` 等同于 ``.property = value``
+    比如: ``.property(value)`` 等同于 ``.property=value``
 
     """
 
@@ -54,6 +54,7 @@ class call_property[T]:
         def wrapper(*args):
             if args:
                 self._fset(instance, *args)
+                return None
             else:
                 return self._fget(instance)
 

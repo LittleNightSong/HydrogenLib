@@ -2,25 +2,23 @@ import weakref
 from collections import UserDict
 from typing import Any
 
-from .events import GetEvent, SetEvent, DeleteEvent
-
 
 class InstanceMappingItem:
     _key: weakref.ReferenceType
 
     def __init__(self, key_instance, value, parent: 'InstanceMapping' = None):
-        self._hasweakref = True
+        self._isweakref = True
         try:
             self._key = weakref.ref(key_instance, self.delete_callback)
         except TypeError:
             self._key = key_instance  # 如果 key_instance 不是弱引用对象
-            self._hasweakref = False
+            self._isweakref = False
         self.value = value
         self.parent = parent
 
     @property
     def key(self):
-        if self._hasweakref:
+        if self._isweakref:
             return self._key()
         else:
             return self._key
@@ -79,14 +77,7 @@ class InstanceMapping[_KT, _VT](UserDict[_KT, _VT]):
 
         id_item = super().__getitem__(k)
 
-        event = GetEvent(id_item.key, id_item.value)
-
-        self.get_event(event)
-
-        if not event.is_accepted():
-            raise RuntimeError('Get event failed', event)
-
-        return event.result  # 找到项, 返回字典值
+        return id_item.value
 
     def set(self, k, v, is_key_id=False):
         """
@@ -97,12 +88,6 @@ class InstanceMapping[_KT, _VT](UserDict[_KT, _VT]):
         """
         if not is_key_id:
             k = self.to_key(k)
-
-        event = SetEvent(super().get(k, None), v)
-        self.set_event(event)
-
-        if not event.is_accepted():
-            raise RuntimeError('Set event failed', event)
 
         self._set(self.to_key(k), v)
 
@@ -115,12 +100,6 @@ class InstanceMapping[_KT, _VT](UserDict[_KT, _VT]):
         if not is_key_id:
             key = self.to_key(key)
 
-        event = DeleteEvent(key, self._get(key))
-        self.delete_event(event)
-
-        if not event.is_accepted():
-            raise RuntimeError('Delete event failed', event)
-
         self._delete(key)
 
     def pop(self, key, is_key_id=False):
@@ -132,8 +111,6 @@ class InstanceMapping[_KT, _VT](UserDict[_KT, _VT]):
         """
         if not is_key_id:
             key = self.to_key(key)
-
-        self.delete_event(DeleteEvent(key, self._get(key)))
 
         return self._pop(key)
 
@@ -160,14 +137,3 @@ class InstanceMapping[_KT, _VT](UserDict[_KT, _VT]):
 
     def __iter__(self):
         yield from self.keys()
-
-    # 拓展
-
-    def delete_event(self, e: DeleteEvent):
-        ...
-
-    def set_event(self, e: SetEvent):
-        ...
-
-    def get_event(self, e: GetEvent):
-        ...

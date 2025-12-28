@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Generator, Callable, overload
+from typing import Generator, Callable
 
 
 class EnhancedGenerator[YT, ST, RT](Generator[YT, ST, RT]):
@@ -13,6 +13,9 @@ class EnhancedGenerator[YT, ST, RT](Generator[YT, ST, RT]):
 
     def close(self):
         return self.gen.close()
+
+    def __next__(self):
+        return self.next(None)
 
     def __init__(self, gen, history: bool = False):
         self.gen: Generator = gen
@@ -47,6 +50,13 @@ class EnhancedGenerator[YT, ST, RT](Generator[YT, ST, RT]):
 
         return self.next()
 
+    def run_util_end(self):
+        try:
+            while True:
+                self.next(None)
+        except StopIteration:
+            pass
+
     def iter_slice(self, slice_: slice):
         start, stop, step = slice_.start or 0, slice_.stop, slice_.step or 1
         for i in range(start, stop, step):
@@ -66,6 +76,8 @@ class EnhancedGenerator[YT, ST, RT](Generator[YT, ST, RT]):
         else:
             raise TypeError("Invalid slice")
 
+    def __iter__(self):
+        return self
 
 
 def enhanced_generator[YT, ST, RT](

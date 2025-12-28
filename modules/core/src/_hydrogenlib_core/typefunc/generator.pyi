@@ -9,6 +9,9 @@ class EnhancedGenerator[YT, ST, RT](Generator[YT, ST, RT]):
     def send(self, value: ST, /) -> YT:
         ...
 
+    def close(self) -> RT | None:
+        ...
+
     def __init__(self, gen: Generator[YT, ST, RT], history: bool = False):
         ...
 
@@ -19,6 +22,9 @@ class EnhancedGenerator[YT, ST, RT](Generator[YT, ST, RT]):
         ...
 
     def next_with_exception(self, exception: Exception) -> YT:
+        ...
+
+    def run_util_end(self):
         ...
 
     def get(self, index: int) -> YT:
@@ -32,6 +38,12 @@ class EnhancedGenerator[YT, ST, RT](Generator[YT, ST, RT]):
 
     def __getitem__(self, item) -> YT:
         ...
+
+    def __next__(self) -> YT:
+        ...
+
+    def __iter__(self):
+        return self
 
 
 @overload

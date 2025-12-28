@@ -1,15 +1,16 @@
 from collections import deque
 from copy import copy
-from typing import Iterable, Generic, TypeVar
+from typing import Iterable
 
 
-T = TypeVar("T")
-class Stack(Generic[T]):
+class Stack[T]:
+    __slots__ = ["_stack"]
+
     @property
     def stack(self) -> deque:
         """
         Get stack.
-        :return: the deque of stack.
+        :return: a copy version of the deque of stack.
         """
         return copy(self._stack)
 
@@ -45,11 +46,11 @@ class Stack(Generic[T]):
         """
         return self.size() == 0
 
-    def peek(self) -> T | None:
+    def peek(self) -> T:
         """
         Get stack top data.
         """
-        return self._stack[-1] if not self.is_empty() else None
+        return self._stack[-1]
 
     def copy(self) -> "Stack[T]":
         """
@@ -61,7 +62,7 @@ class Stack(Generic[T]):
         return tuple(self._stack)
 
     @property
-    def top(self) -> T | None:
+    def top(self) -> T:
         """
         Same as `.top()`.
         """
@@ -71,6 +72,8 @@ class Stack(Generic[T]):
     def top(self, new):
         if not self.is_empty():
             self._stack[-1] = new
+        else:
+            self._stack.append(new)
 
     def __str__(self):
         return str(self._stack)
