@@ -1,5 +1,7 @@
 import contextlib
+import dataclasses
 import sys
+import tomllib
 from collections import deque
 from pathlib import Path
 from typing import Iterable
@@ -8,59 +10,47 @@ import rich.traceback
 from rich import print
 
 
-# def reset_toml_infomation(file, m: Path):
-#     with open(file, "r") as f:
-#         data = f.read().replace('\\h', '/h')
-#
-#     toml = tomlkit.loads(data)  # type: tomlkit.TOMLDocument
-#     project = toml['project']
-#
-#     # reset Name
-#     project['name'] = project_name  = "HydrogenLib-" + m.name.title()
-#
-#     # reset authors
-#     project['authors'] = [{'name': 'LittleSong2025', 'email': 'LittleSong2024@outlook.com'}]
-#
-#     if 'license' in project:
-#         del project['license']
-#
-#     # reset Urls
-#     urls = project['urls']
-#     urls['Documentation'] = \
-#         "https://github.com/LittleSong2025/HydrogenLib#readme"
-#     urls['Issues'] = "https://github.com/LittleSong2025/HydrogenLib/issues"
-#     urls['Source'] = "https://github.com/LittleSong2025/HydrogenLib"
-#
-#     # reset Version
-#     hatch = toml['tool']['hatch']
-#     package_path = Path('src') / convert_to_package_name(project_name)
-#     hatch['version']['path'] = str(package_path / '__about__.py').replace('\\', '/')
-#
-#     # reset Packages
-#     hatch['build'] = {
-#         "targets": {
-#             'wheel': {
-#                 "packages": [str(package_path).replace('\\', '/')]
-#             }
-#         }
-#     }
-#
-#     # reset require-python
-#     project['requires-python'] = ">=3.12"  # 因为使用了 3.12 的类型注解语法
-#
-#     # reset classifiers
-#     project['classifiers'] = [
-#         "Development Status :: 3 - Alpha",
-#         "Programming Language :: Python",
-#         "Programming Language :: Python :: 3.11",
-#         "Programming Language :: Python :: 3.12",
-#         "Programming Language :: Python :: 3.13",
-#         "Programming Language :: Python :: Implementation :: CPython",
-#         "Programming Language :: Python :: Implementation :: PyPy",
-#     ]
-#
-#     with open(file, "w") as f:
-#         tomlkit.dump(toml, f)
+@dataclasses.dataclass
+class ProjectInfo:
+    name: str
+    require_python: str
+    keywords: list[str]
+    authors: list[dict]
+    dependencies: list[str]
+    packages: list[str]
+
+
+class Module:
+    def __init__(self, module_path):
+        self.module_path = module_path
+
+    def __fspath__(self):
+        return str(self.module_path)
+
+    def get_version(self):
+        import scripts.commands.hatchc
+        return scripts.commands.hatchc.get_version(self)
+
+    def set_version(self, version):
+        import scripts.commands.hatchc
+        return scripts.commands.hatchc.set_version(self, version)
+
+    def project_info(self):
+        with open(Path(self) / 'pyproject.toml', 'rb') as f:
+            toml = tomllib.load(f)
+            project = toml['project']
+            return ProjectInfo(
+                name=project['name'],
+                keywords=project['keywords'],
+                require_python=project['requires-python'],
+                authors=project['authors'],
+                dependencies=project['dependencies'],
+                packages=toml['tool']['hatch']['build']['targets']['wheel']['packages']
+            )
+
+    @classmethod
+    def find(cls, name, project_dir=None):
+        return cls(find_module(name, project_dir))
 
 
 def unlink_with_glob(path: Path, pattern, rglob=False):
@@ -135,6 +125,7 @@ def find_module(mname: str, project_dir: Path | None = None) -> Path | None:
         return module
     else:
         return None
+
 
 def iter_modules(project_dir: Path | None = None) -> Iterable[Path]:
     if project_dir is None:
