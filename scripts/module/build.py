@@ -37,10 +37,10 @@ def reset_version(ver, module, name):
             current_ver = hatchc.get_version(module)
             if ver not in special_version_strings:
                 if current_ver == ver:
-                    console.info(f"Module [bold]{name}[/bold] is [green]up-to-date[/green]")
+                    console.print(f"Module [bold]{name}[/bold] is [green]up-to-date[/green]")
                 elif current_ver < ver:
                     hatchc.set_version(module, str(ver))
-                    console.info(f"Module [bold]{name}[/bold] is [green]{ver}[/green]")
+                    console.print(f"Module [bold]{name}[/bold] is [green]{hatchc.get_version(module)}[/green]")
                 else:
                     console.error(f"Module [bold]{name}[/bold] is not [red]up-to-date[red]")
             else:

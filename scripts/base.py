@@ -183,5 +183,8 @@ class Console:
                 sys.exit(exit)
             print()
 
+    def print(self, *args, **kwargs):
+        return print(*args, **kwargs)
+
 
 console = Console()
