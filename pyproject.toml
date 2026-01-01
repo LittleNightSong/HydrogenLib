@@ -5,6 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "HydrogenLib-NEXT"
 dynamic = ["version"]
+readme = "README.md"
 requires-python = ">=3.12"
 keywords = []
 authors = [
