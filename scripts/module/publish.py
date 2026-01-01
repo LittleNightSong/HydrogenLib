@@ -12,7 +12,7 @@ def main():
 
     modules = sys.argv[1:]
     for mname in modules:
-        with console.status("Publishing module %s" % mname):
+        with console.status("Publishing [bold]%s[/bold]" % mname):
             mname, ver = libbuild.parse_build_config(mname)
             uvc.publish(scripts.base.find_module(mname))
 
