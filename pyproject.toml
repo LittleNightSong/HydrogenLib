@@ -8,7 +8,7 @@ dynamic = ["version"]
 requires-python = ">=3.12"
 keywords = []
 authors = [
-    { name = "LittleSong2025", email = "LittleSong2024@outlook.com" },
+    { name = "LittleNightSong", email = "LittleNightSongYO@outlook.com" },
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -32,9 +32,9 @@ dependencies = [
 import-names = ["hydrogenlib"]
 
 [project.urls]
-Documentation = "https://github.com/LittleSong2024/HydrogenLib#readme"
-Issues = "https://github.com/LittleSong2024/HydrogenLib/issues"
-Source = "https://github.com/LittleSong2024/HydrogenLib"
+Documentation = "https://github.com/LittleNightSong/HydrogenLib#readme"
+Issues = "https://github.com/LittleNightSong/HydrogenLib/issues"
+Source = "https://github.com/LittleNightSong/HydrogenLib"
 
 [tool.hatch.version]
 path = "hydrogenlib/__init__.py"
