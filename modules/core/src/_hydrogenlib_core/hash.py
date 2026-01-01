@@ -3,8 +3,6 @@ import enum
 import hashlib
 import typing
 
-import _hashlib
-
 
 class Hash(enum.Enum):
     sha1 = 'sha1'
@@ -32,9 +30,12 @@ class Hash(enum.Enum):
     def is_variable_length(self):
         return self in [Hash.shake_128, Hash.shake_256]
 
-    def compute(self, data: str) -> _hashlib.HASH:
-        obj = self.new_object()
-        obj.update(data.encode('utf-8'))
+    def compute_str(self, data: str, encoding='utf-8'):
+        obj = self.new_object(data.encode(encoding))
+        return obj
+
+    def compute_bytes(self, data: bytes | bytearray | memoryview[bytes | bytearray]):
+        obj = self.new_object(data)
         return obj
 
     def compute_from_stream(self, stream: typing.IO[bytes], chunk_size=65536, use_hashlib_method=False):
@@ -67,4 +68,3 @@ class Hash(enum.Enum):
         async for chunk in aiterable:
             obj.update(chunk)
         return obj
-
