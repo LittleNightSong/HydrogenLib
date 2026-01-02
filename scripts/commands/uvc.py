@@ -12,8 +12,8 @@ def uv(commands: list | str, cwd=None) -> sp.CompletedProcess:
     )
 
 
-def build(project_dir: PathLike[str] | str):
-    return uv(["build"], cwd=project_dir)
+def build(module: PathLike[str] | str):
+    return uv(["build"], cwd=module)
 
 
 def install(modules: list[str]):

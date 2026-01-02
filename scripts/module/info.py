@@ -6,14 +6,15 @@ from scripts.base import console, Module
 def main():
     module_name = sys.argv[1]
     module = Module.find(module_name)
-    info = module.project_info()
+    info = module.project_info
 
     console.print(
         f"""
-Module {info.name}
+Module [bold]{info.name}[/bold]
+
 packages: {', '.join(info.packages)}
 dependencies: {', '.join(info.dependencies)}
-version: {module.get_version()}
+version: {module.version()}
 """
     )
 

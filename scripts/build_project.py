@@ -2,7 +2,7 @@ import shutil
 import sys
 
 from scripts.commands import uvc, hatchc
-from scripts.base import find_project_dir, console, iter_modules, convert_to_package_name, project_dir
+from scripts.base import find_project_dir, console_, iter_modules, convert_to_import_name, project_dir
 
 
 def main():
@@ -20,7 +20,7 @@ def main():
             console.info(f"{f'<{module.name}>':20} Find existing re-import.py, copy to project dir")
         else:
             # 手动生成 re-import
-            main_package = f"_hydrogenlib_{convert_to_package_name(module.name)}"
+            main_package = f"_hydrogenlib_{convert_to_import_name(module.name)}"
             target_reiport_file.write_text(
                 f"from {main_package} import *"
             )

@@ -1,20 +1,23 @@
 import sys
 
-import scripts.base
-import scripts.commands.uvc as uvc
 import scripts.module.build as libbuild
-
-console = scripts.base.Console()
+from scripts.base import console, Module
 
 
 def main():
     libbuild.main()
 
     modules = sys.argv[1:]
-    for mname in modules:
-        with console.status("Publishing [bold]%s[/bold]" % mname):
-            mname, ver = libbuild.parse_build_config(mname)
-            uvc.publish(scripts.base.find_module(mname))
+    for string in modules:
+        name, ver = libbuild.parse_build_config(string)
+        module = Module.find(name)
+        with console.status("Publishing [bold]%s[/bold]" % name):
+            if ver:
+                module.publish(
+                    f"*-{module.version}-*"
+                )
+            else:
+                module.publish()
 
 
 if __name__ == "__main__":

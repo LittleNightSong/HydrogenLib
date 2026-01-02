@@ -4,10 +4,9 @@ import subprocess as sp
 import sys
 
 from packaging.version import Version
-from rich import print
 
-from scripts.base import find_module, console, project_dir
-from scripts.commands import hatchc, uvc
+from scripts.base import Project, console, Module
+from scripts.commands import hatchc
 
 special_version_strings = {"patch", 'major', 'minor'}
 
@@ -31,49 +30,40 @@ def parse_build_config(arg: str):
         return arg.lower(), None
 
 
-def reset_version(ver, module, name):
-    if ver:
-        try:
-            current_ver = hatchc.get_version(module)
-            if ver not in special_version_strings:
-                if current_ver == ver:
-                    console.print(f"Module [bold]{name}[/bold] is [green]up-to-date[/green]")
-                elif current_ver < ver:
-                    hatchc.set_version(module, str(ver))
-                    console.print(f"Module [bold]{name}[/bold] is [green]{hatchc.get_version(module)}[/green]")
-                else:
-                    console.error(f"Module [bold]{name}[/bold] is not [red]up-to-date[red]")
-            else:
-                hatchc.set_version(module, str(ver))
-                console.info(f"Module [bold]{name}[/bold] is [green]{ver}[/green]")
-        except sp.CalledProcessError as e:
-            console.error("[red]Cannot set info successfully[/red]")
+def reset_version(module: Module, ver: str):
+    name = module.name
+    current_ver = module.version
+    if ver not in special_version_strings:
+        if current_ver == ver:
+            console.print(f"Module [bold]{name}[/bold] is [green]up-to-date[/green]")
+        elif current_ver < ver:
+            module.version = ver
+            console.print(f"Module [bold]{name}[/bold] is [green]{hatchc.get_version(module)}[/green]")
+        else:
+            console.error(f"Module [bold]{name}[/bold]: You cannot be downgraded")
+    else:
+        module.version = ver
+        console.info(f"Module [bold]{name}[/bold] is [green]{ver}[/green]")
 
 
 def main():
+    project = Project.find()
+
     builds = sys.argv[1::]
 
     vaild_modules = []
 
     for build_string in builds:
-        module_name, module_version = parse_build_config(build_string)
+        name, ver = parse_build_config(build_string)
+        module = project.get_module(name)
+        vaild_modules.append((module, ver))
 
-        module = find_module(module_name, project_dir)
-        if module is None:
-            console.error('Module', module_name, "not found")
-        else:
-            print(f"Found module [bold]{module_name}[/bold]")
-            vaild_modules.append(
-                BuildConfig(
-                    module_name, module_version, module
-                )
-            )
+    for module, ver in vaild_modules:
+        if ver:
+            reset_version(module, ver)
 
-    for bc in vaild_modules:
-        name, ver, module = bc.name, bc.version, bc.path
-        reset_version(ver, module, name)
-        with console.status(f'Building [bold]{name}[/bold]'):
-            uvc.build(module)
+        with console.status(f'Building [bold]{module.name}[/bold]'):
+            module.build()
 
 
 if __name__ == "__main__":

@@ -1,8 +1,7 @@
 import re
 import sys
-from pathlib import Path
 
-from scripts.base import create_dir_by_struct, convert_to_package_name, convert_to_module_name, find_project_dir
+from scripts.base import create_dir_by_struct, Project, console
 
 template = """
 [build-system]
@@ -20,12 +19,12 @@ classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Pytho
 dependencies = []
 
 [[project.authors]]
-name = "LittleSong2025"
-email = "LittleSong2024@outlook.com"
+name = "LittleNightSong"
+email = "LittleNightSongYO@outlook.com"
 [project.urls]
-Documentation = "https://github.com/LittleSong2025/HydrogenLib#readme"
-Issues = "https://github.com/LittleSong2025/HydrogenLib/issues"
-Source = "https://github.com/LittleSong2025/HydrogenLib"
+Documentation = "https://github.com/LittleNightSong/HydrogenLib#readme"
+Issues = "https://github.com/LittleNightSong/HydrogenLib/issues"
+Source = "https://github.com/LittleNightSong/HydrogenLib"
 
 [tool.hatch.version]
 path = "src/{package_name}/__about__.py"
@@ -39,30 +38,25 @@ name_matcher = re.compile(r"[a-zA-Z_][a-zA-Z0-9_]*")
 
 if __name__ == '__main__':
     name = '-'.join(sys.argv[1:])
-    project_dir = find_project_dir()
-
-    modules = project_dir / 'modules'
+    project = Project()
 
     # Check the name
     if not name_matcher.match(name):
         raise ValueError("The given name is wrong.")
 
-    # Create the project
-    new_project_dir = modules / name
-    full_pkgname = '_hydrogenlib_' + convert_to_package_name(name)
-    create_dir_by_struct(new_project_dir, {
-            'src': {
-                full_pkgname: {
-                    '__init__.py': None,
-                    '__about__.py': 'version = "0.0.1" '
-                }
-            },
-            'README.md': None,
-            'pyproject.toml': None,
-    })
+    if project.is_module(name):
+        console.error(f"Module [bold]{name}[/bold] is already exists.")
 
-    # Clean
-    with open(new_project_dir / 'pyproject.toml', 'r+') as f:
-        f.write(
-            template.format(module_name=convert_to_module_name(name), package_name=full_pkgname)
-        )
+    # Create the module
+    module = project.get_module(name, check=False)
+    import_name = module.import_name
+    create_dir_by_struct(module.path, {
+        'src': {
+            import_name: {
+                '__init__.py': None,
+                '__about__.py': 'version = "0.0.1" '
+            }
+        },
+        'README.md': None,
+        'pyproject.toml': template.format(module_name=module.package_name, package_name=import_name),
+    })
