@@ -16,9 +16,8 @@ dependencies = [
 ]
 
 [[project.authors]]
-name = "LittleSong2025"
-email = "LittleSong2024@outlook.com"
-
+name = "LittleNightSong"
+email = "LittleNightSongYO@outlook.com"
 [[tool.uv.index]]
 url = "http://mirrors.aliyun.com/pypi/simple"
 default = true

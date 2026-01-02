@@ -10,9 +10,6 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = "HydrogenLib License"
 keywords = []
-authors = [
-  { name = "LittleSong2024", email = "LittleSong2024@outlook.com" },
-]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
@@ -26,6 +23,9 @@ classifiers = [
 ]
 dependencies = []
 
+[[project.authors]]
+name = "LittleNightSong"
+email = "LittleNightSongYO@outlook.com"
 [project.urls]
 Documentation = "https://github.com/LittleSong2024/hydrogenlib-ipc#readme"
 Issues = "https://github.com/LittleSong2024/hydrogenlib-ipc/issues"
