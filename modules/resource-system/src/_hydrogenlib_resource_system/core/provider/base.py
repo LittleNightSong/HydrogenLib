@@ -32,6 +32,9 @@ class ResourceProvider(ABC):
     def close(self):
         pass
 
+    def __del__(self):
+        self.close()
+
 
 class Resource(ABC):
     url: str | Any = None

@@ -12,6 +12,8 @@ from .base import ResourceProvider
 if typing.TYPE_CHECKING:
     from ..system import CoreResourceSystem
 
+import zipfile
+
 
 class LocalResource(Resource):
     def __init__(self, local_path: str | Path):
@@ -126,3 +128,41 @@ class TempProvider(ResourceProvider):
 
     def __del__(self):
         self.close()
+
+
+class ZipResource(Resource):
+    def __init__(self, zipio):
+        self._io = zipio
+
+    def release(self) -> None:
+        self._io.close()
+
+    def __fspath__(self):
+        raise NotImplemented
+
+
+class ZipProvider(ResourceProvider):
+    def list(self, path: PurePosixPath, query: dict[str, Any], resource_system: CoreResourceSystem) -> builtins.list:
+        raise NotImplemented
+
+    def get(self, path: PurePosixPath, query: dict[str, Any], resource_system: CoreResourceSystem) -> Resource | None:
+        pwd = query.get('pwd', None)
+        return ZipResource(
+            self._zip.open(str(path), force_zip64=True, pwd=pwd)
+        )
+
+    def set(self, path: PurePosixPath, data: Any, query: dict[str, Any], resource_system: CoreResourceSystem) -> None:
+        raise NotImplemented
+
+    def exists(self, path: PurePosixPath, query: dict[str, Any], resource_system: CoreResourceSystem) -> bool:
+        raise NotImplemented
+
+    def remove(self, path: PurePosixPath, query: dict[str, Any], resource_system: CoreResourceSystem):
+        raise NotImplemented
+
+    def __init__(self, file):
+        self._zipfile = file
+        self._zip = zipfile.ZipFile(file)
+
+    def close(self):
+        self._zip.close()
