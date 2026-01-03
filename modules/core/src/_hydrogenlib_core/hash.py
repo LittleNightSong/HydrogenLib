@@ -34,7 +34,7 @@ class Hash(enum.Enum):
         obj = self.new_object(data.encode(encoding))
         return obj
 
-    def compute_bytes(self, data: bytes | bytearray | memoryview[bytes | bytearray]):
+    def compute_bytes(self, data: collections.abc.Buffer):
         obj = self.new_object(data)
         return obj
 

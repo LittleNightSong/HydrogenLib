@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import MutableMapping
 
 
@@ -23,7 +24,7 @@ class ObjectiveDict:
         return self._dict
 
 
-def build_from_tuple(values, *keys):
+def extract_as_dict(values, *keys):
     return {
         k: v for k, v in zip(keys, values)
     }
@@ -35,6 +36,8 @@ def unpack_to_tuple(dct, *keys):
 
 
 class SubDict(MutableMapping):
+    __slots__ = ("_data", "_par", '_keys')
+
     def __getitem__(self, item):
         try:
             return self._data[item]
@@ -58,8 +61,73 @@ class SubDict(MutableMapping):
             set(self._data.keys()) | self._keys
         )
 
-    def __init__(self, parent, keys):
+    def __init__(self, parent, *keys):
         self._par = parent
         self._keys = set(keys)
         self._data = {}
 
+
+def dict_get_as(dct, key, type, default=None):
+    try:
+        return type(dct[key])
+    except KeyError:
+        return default
+
+
+class DefaultDict(MutableMapping):
+    """
+    自动设置未存在于字典的键的值，同时访问时返回默认值
+
+    可以通过指定`isdeepcopy`属性来说明是否对默认值进行copy操作
+    """
+    default_value = None
+    isdeepcopy = True
+
+    def __init__(self, *args, **kwargs):
+        self._dict = dict(*args, **kwargs)
+
+    def get(self, key, default=None):
+        return self._dict.get(key, default)
+
+    def pop(self, key):
+        return self._dict.pop(key)
+
+    def copy(self):
+        return self._dict.copy()
+
+    def keys(self):
+        return self._dict.keys()
+
+    def values(self):
+        return self._dict.values()
+
+    def items(self):
+        return self._dict.items()
+
+    def clear(self):
+        return self._dict.clear()
+
+    def __contains__(self, key):
+        return self._dict.__contains__(key)
+
+    def __len__(self):
+        return self._dict.__len__()
+
+    def __getitem__(self, key):
+        if key not in self._dict:
+            if self.isdeepcopy:
+                v = deepcopy(self.default_value)
+            else:
+                v = self.default_value
+            self._dict[key] = v
+            return v
+        return self._dict[key]
+
+    def __setitem__(self, key, value):
+        self._dict[key] = value
+
+    def __delitem__(self, key):
+        del self._dict[key]
+
+    def __iter__(self):
+        return self._dict.__iter__()

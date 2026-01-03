@@ -3,7 +3,6 @@ from io import BytesIO
 from typing import Union
 
 from .data_structures import Stack
-from .path import path_exists, mkfile
 
 
 class FileStatus:
@@ -130,15 +129,10 @@ class NeoIO:
         ins = cls.from_fp(fp)
         return ins
 
-    def open(self, file, mode='r', encoding=None, create=None, *args, **kwargs):
+    def open(self, file, mode='r', encoding=None, *args, **kwargs):
         """
         打开一个新的文件,并压入栈中
         """
-        if create is None:
-            create = self.create
-
-        if not path_exists(file) and not create:
-            mkfile(file)
 
         self.__push_fp(
             open(file, mode, encoding=encoding, *args, **kwargs))

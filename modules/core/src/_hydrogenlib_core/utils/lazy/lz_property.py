@@ -1,4 +1,4 @@
-from ..instance_dict import InstanceMapping
+from ..instance_mapping import InstanceMapping
 from ...typefunc import alias
 
 

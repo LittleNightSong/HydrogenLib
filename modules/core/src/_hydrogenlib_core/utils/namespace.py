@@ -1,9 +1,8 @@
 class Namespace:
     _init = False
 
-    def __init__(self, error='N/A', **kwargs):
+    def __init__(self, **kwargs):
         self._namesp = kwargs
-        self.error = error
 
     def set(self, key, value):
         self._namesp[key] = value
@@ -15,12 +14,12 @@ class Namespace:
             return self.error
 
     def __getattr__(self, item):
-        if item in self._namesp:
-            return self._namesp[item]
-        else:
-            return self.error
+        if item not in self._namesp:
+            raise AttributeError("Namespace has no attribute " + item)
 
-    def delt(self, item):
+        return self._namesp[item]
+
+    def delete(self, item):
         if item in self._namesp:
             self._namesp.pop(item)
 
@@ -31,7 +30,7 @@ class Namespace:
         self.set(key, value)
 
     def __delitem__(self, key):
-        self.delt(key)
+        self.delete(key)
 
     def __getitem__(self, item):
         return self.get(item)

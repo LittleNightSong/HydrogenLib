@@ -147,7 +147,7 @@ class HuffmanTree:
         return dict(map(lambda x: (x[1], x[0]), self.walk()))
 
     def compress(self, data):
-        codes = get_huffman_codes_dict(self)
+        codes = self.huffman_codes_dict
         res = b''
         for char in data:
             res += codes[char]

@@ -78,5 +78,101 @@ def get_origin(tp):
     origin = typing.get_origin(tp)
     return origin if origin is not None else tp
 
+
 def split_type(tp):
     return get_origin(tp), typing.get_args(tp)
+
+
+class SingletonType:
+    _single_instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._single_instance is None:
+            cls._single_instance = super().__new__(cls, *args, **kwargs)
+        return cls._single_instance
+
+
+class AutoRepr:
+    __repr_attrs__ = ()
+
+    def __repr__(self):
+        return str(
+            {attr: getattr(self, attr) for attr in self.__repr_attrs__}
+        )
+
+
+class AutoStr:
+    _str_attrs = ()
+
+    def __str__(self):
+        return str(
+            {attr: getattr(self, attr) for attr in self._str_attrs}
+        )
+
+
+class AutoInfo(AutoRepr, AutoStr):
+    _info_attrs = ()
+
+    def __repr__(self):
+        self._repr_attrs = self._info_attrs
+        return super().__repr__()
+
+    def __str__(self):
+        self._str_attrs = self._info_attrs
+        return super().__str__()
+
+
+class AutoCompare:
+    """
+    自动完成比较操作
+    通过指定`__compare_attrs__`属性来指定比较的属性，默认为None，
+    如果`__compare_attrs__`为None，那么自动比较将不会生效，而是根据比较符返回一个默认值
+    如果被比较的对象不是 `AutoCompare` 的实例，那么比较时会按比较列表的第一个属性作为比较属性
+    """
+    __compare_attrs__ = ()
+    __cmp_funcs__ = {
+        'eq': lambda x, y: x == y,
+        'ne': lambda x, y: x != y,
+        'lt': lambda x, y: x < y,
+        'gt': lambda x, y: x > y,
+        'le': lambda x, y: x <= y,
+        'ge': lambda x, y: x >= y
+    }
+
+    def _auto_compare_attrs(self, opt, other, defautl=False):
+        if opt not in self.__cmp_funcs__:
+            return defautl
+
+        func = self.__cmp_funcs__[opt]
+
+        if not isinstance(other, AutoCompare):
+            if self.__compare_attrs__:
+                value = getattr(self, self.__compare_attrs__[0])
+                return func(value, other)
+
+        if self.__compare_attrs__ is None or other.__compare_attrs__ is None:
+            return defautl
+
+        my_attr_values = (
+            getattr(self, attr) for attr in self.__compare_attrs__)
+        other_attr_values = (
+            getattr(other, attr) for attr in other.__compare_attrs__)
+        return func(my_attr_values, other_attr_values)
+
+    def __eq__(self, other):
+        return self._auto_compare_attrs('eq', other, False)
+
+    def __ne__(self, other):
+        return self._auto_compare_attrs('ne', other, True)
+
+    def __lt__(self, other):
+        return self._auto_compare_attrs('lt', other, False)
+
+    def __gt__(self, other):
+        return self._auto_compare_attrs('gt', other, False)
+
+    def __le__(self, other):
+        return self._auto_compare_attrs('le', other, True)
+
+    def __ge__(self, other):
+        return self._auto_compare_attrs('ge', other, True)

@@ -10,7 +10,7 @@ class Descriptor:
     __dspt_return_self__ = True
 
     def __init__(self):
-        from .utils.instance_dict import InstanceMapping
+        from .utils.instance_mapping import InstanceMapping
         if self.__instance_mapping__ is None:
             self.__instance_mapping__ = InstanceMapping()
 
@@ -139,4 +139,4 @@ def get_descriptor_instance(descriptor, instance, owner=None):
 
 
 if typing.TYPE_CHECKING:
-    from .utils.instance_dict import InstanceMapping
+    from .utils.instance_mapping import InstanceMapping

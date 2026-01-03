@@ -1,10 +1,10 @@
-from .auto import AutoRegDict
+from ..typefunc import DefaultDict
 
 
 class MultiSet:
     def __init__(self, iterable=None):
         self._elements = set()
-        self._data = AutoRegDict()
+        self._data = DefaultDict()
         self._data.default_value = 0
         if iterable is not None:
             for item in iterable:

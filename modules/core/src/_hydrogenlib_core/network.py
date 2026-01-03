@@ -1,7 +1,8 @@
-import socket
-import ipaddress
-
 import dataclasses
+import ipaddress
+import socket
+from typing import NamedTuple
+
 import ping3
 
 
@@ -99,7 +100,7 @@ def iter_ip_class_range(ip_class: str):
 
 
 def host_to_ip(host):
-    return socket.gethostbyname(host)
+    return IPAddress(socket.gethostbyname(host))
 
 
 def ip_to_host(ip):
@@ -109,3 +110,19 @@ def ip_to_host(ip):
         name, alias,
         [IPAddress(ip) for ip in ips]
     )
+
+
+RemoteAddr = NamedTuple('RemoteAddr', [
+    ('host', str),
+    ('port', int)
+])
+
+
+def parse_remote_addr(remote_addr: str):
+    host, *args = remote_addr.split(':')
+    if args:
+        port = int(args[0])
+    else:
+        port = None
+
+    return RemoteAddr(host, port)

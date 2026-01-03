@@ -1,1 +1,1 @@
-from .frozen_dict import *
+from .frozen_dict import frozendict
