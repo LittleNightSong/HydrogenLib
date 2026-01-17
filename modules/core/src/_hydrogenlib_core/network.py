@@ -1,43 +1,16 @@
 import dataclasses
-import ipaddress
 import socket
+from ipaddress import IPv4Address, IPv6Address, AddressValueError
 from typing import NamedTuple
 
 import ping3
 
 
-class IPAddress:
-    def __new__(cls, value):
-        if cls is IPAddress:
-            try:
-                return IPv4Address(value)
-            except:
-                return IPv6Address(value)
-        else:
-            return super().__new__(cls, value)
-
-    def ping(self, timout=3):
-        return ping3.ping(self, timeout=timout)
-
-    def to_v4(self):
-        return IPv4Address(self)
-
-    def to_v6(self):
-        return IPv6Address(self)
-
-    def is_v4(self):
-        return isinstance(self, IPv4Address)
-
-    def is_v6(self):
-        return isinstance(self, IPv6Address)
-
-
-class IPv4Address(ipaddress.IPv4Address, IPAddress):
-    pass
-
-
-class IPv6Address(ipaddress.IPv6Address, IPAddress):
-    pass
+def IPAddress(value):
+    try:
+        return IPv4Address(value)
+    except AddressValueError:
+        return IPv6Address(value)
 
 
 @dataclasses.dataclass
@@ -114,15 +87,16 @@ def ip_to_host(ip):
 
 RemoteAddr = NamedTuple('RemoteAddr', [
     ('host', str),
-    ('port', int)
+    ('port', int | None)
 ])
 
 
 def parse_remote_addr(remote_addr: str):
-    host, *args = remote_addr.split(':')
-    if args:
-        port = int(args[0])
+    if ':' in remote_addr:
+        host, port = remote_addr.split(':')
+        port = int(port)
+
     else:
-        port = None
+        host, port = remote_addr, None
 
     return RemoteAddr(host, port)
