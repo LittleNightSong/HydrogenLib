@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Callable
 
-from .builtin_providers import BindProvider
+from .builtin_providers import BindProvider, OverlayerProvider
 from .core.provider import Resource, ResourceProvider
 from .system import ResourceSystem
 
@@ -59,11 +59,22 @@ def wrap_type[T](typ: type[T], convert_func) -> type[T]:
 #
 #     return system
 
-def create_system(mounts: dict[str, str | ResourceProvider | type[ResourceProvider]]):
+type _ProviderSpec = str | ResourceProvider | type[ResourceProvider]
+
+
+def create_system(mounts: dict[str, _ProviderSpec | list[_ProviderSpec]]):
     system = ResourceSystem()
-    for prefix, provider in mounts.items():
+
+    def solve_provider(provider):
         if isinstance(provider, str):
-            provider = BindProvider(provider)
-        system.mount(
-            prefix, provider
-        )
+            return BindProvider(provider)
+        elif isinstance(provider, list):
+            return OverlayerProvider(list(map(solve_provider, provider)))
+        elif isinstance(provider, ResourceProvider):
+            return provider
+        else:
+            raise ValueError(f'Not a provider: {provider}')
+
+    for prefix, provider in mounts.items():
+        provider = solve_provider(provider)
+        system.mount(prefix, provider)
