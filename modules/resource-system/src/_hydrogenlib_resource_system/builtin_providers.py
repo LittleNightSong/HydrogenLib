@@ -5,7 +5,7 @@ import os
 import tempfile
 import typing
 from pathlib import PurePosixPath, Path
-from typing import Any
+from typing import Any, Sequence
 
 from .core.provider import Resource, ResourceProvider
 
@@ -27,7 +27,7 @@ class LocalResource(Resource):
         return os.stat(self).st_size
 
 
-class URLProvider(ResourceProvider):
+class BindProvider(ResourceProvider):
     def __init__(self, prefix):
         self.prefix = PurePosixPath(prefix)
 
@@ -180,3 +180,31 @@ class ZipProvider(ResourceProvider):
 
     def close(self):
         self._zip.close()
+
+
+class OverlayerProvider(ResourceProvider):
+    def __init__(self, providers: Sequence[ResourceProvider]):
+        self._providers = providers
+
+    def _call(self, method, *args, **kwargs):
+        for provider in self._providers:
+            try:
+                return getattr(provider, method)(*args, **kwargs)
+            except Exception:
+                continue
+        raise FileNotFoundError(args[0])
+
+    def list(self, path: PurePosixPath, query: dict[str, Any], resource_system: CoreResourceSystem) -> builtins.list:
+        return self._call('list', path, query, resource_system)
+
+    def get(self, path: PurePosixPath, query: dict[str, Any], resource_system: CoreResourceSystem) -> Resource | None:
+        return self._call('get', path, query, resource_system)
+
+    def set(self, path: PurePosixPath, data: Any, query: dict[str, Any], resource_system: CoreResourceSystem) -> None:
+        return self._call('set', path, query, resource_system)
+
+    def exists(self, path: PurePosixPath, query: dict[str, Any], resource_system: CoreResourceSystem) -> bool:
+        return self._call('exists', path, query, resource_system)
+
+    def remove(self, path: PurePosixPath, query: dict[str, Any], resource_system: CoreResourceSystem):
+        return self._call('remove', path, query, resource_system)

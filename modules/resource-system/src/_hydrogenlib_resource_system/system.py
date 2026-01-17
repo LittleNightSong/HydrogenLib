@@ -1,5 +1,7 @@
+from typing import overload, Any
+
 from . import core
-from .builtin_providers import URLProvider
+from .builtin_providers import BindProvider
 
 
 class TypedResourceSystem[T]:
@@ -32,12 +34,23 @@ class ResourceSystem:
     def exists(self, url, **query):
         return self._system.exists(url, **query)
 
-    def mount(self, url, provider=URLProvider):
-        return self._system.mount(url, provider)
+    @overload
+    def mount(self, prefix: str, provider: core.provider.ResourceProvider):
+        ...
+
+    @overload
+    def mount(self, prefix: str, source: Any, provider: core.provider.ResourceProvider = BindProvider):
+        ...
+
+    def mount(self, prefix, source, provider=None):
+        if isinstance(source, core.provider.ResourceProvider):
+            return self._system.mount(prefix, source)
+        else:
+            return self._system.mount(prefix, provider(source))
 
     def bind(self, dst, src):
         return self._system.mount(
-            dst, URLProvider(src)
+            dst, BindProvider(src)
         )
 
     def open(self, url, mode='r', encoding='utf-8', **query):

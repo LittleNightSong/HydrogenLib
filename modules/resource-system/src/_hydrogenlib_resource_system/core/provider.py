@@ -44,8 +44,12 @@ class ResourceProvider(ABC):
 class Resource(ABC):
     url: str | Any = None
 
+    def __fspath__(self):
+        raise NotImplemented
+
+    @property
     @abstractmethod
-    def __fspath__(self) -> str:
+    def visual(self) -> bool:
         ...
 
     def open(

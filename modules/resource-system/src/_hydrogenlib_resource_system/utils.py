@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from typing import Callable
 
-from .core.provider import Resource
+from .builtin_providers import BindProvider
+from .core.provider import Resource, ResourceProvider
+from .system import ResourceSystem
 
 
 def registry_resource_type[T](type_: type[T]):
@@ -38,6 +40,7 @@ class _WrappedResourceType:
 def wrap_type[T](typ: type[T], convert_func) -> type[T]:
     return _WrappedResourceType(typ, convert_func)
 
+
 # class _MTB(TypedDict):
 #     provider: ResourceProvider | type[ResourceProvider]
 #     children: MountTab
@@ -55,3 +58,12 @@ def wrap_type[T](typ: type[T], convert_func) -> type[T]:
 #
 #
 #     return system
+
+def create_system(mounts: dict[str, str | ResourceProvider | type[ResourceProvider]]):
+    system = ResourceSystem()
+    for prefix, provider in mounts.items():
+        if isinstance(provider, str):
+            provider = BindProvider(provider)
+        system.mount(
+            prefix, provider
+        )
