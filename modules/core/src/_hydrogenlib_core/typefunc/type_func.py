@@ -58,15 +58,26 @@ def iter_attributes(obj):
         yield name, getattr(obj, name)
 
 
+empty_set = frozenset()
+
+
 class AutoSlotsMeta(type):
     __slots__: tuple
     __no_slots__: tuple
+    __migrate_class_vars__: bool = False
 
     def __new__(cls, name, bases, attrs):
         slots = set(attrs.get("__slots__", ()))
         slots |= set(attrs.get('__annotations__', {}).keys())
-        no_slots = set(attrs.get('__no_slots__', frozenset()))
+        no_slots = set(attrs.get('__no_slots__', empty_set))
         attrs['__slots__'] = tuple(slots - no_slots)
+
+        if attrs.get('__migrate_class_vars__') or getattr(cls, '__migrate_class_vars__', None):
+            for attr in attrs['__slots__']:
+                if attr in attrs:
+                    setattr(cls, attr, attrs[attr])  # 将类变量作为元类成员
+                    del attrs[attr]
+
         return super().__new__(cls, name, bases, attrs)
 
 

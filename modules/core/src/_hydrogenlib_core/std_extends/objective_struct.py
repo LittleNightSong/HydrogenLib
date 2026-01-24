@@ -3,6 +3,8 @@ import inspect
 import struct
 from collections import OrderedDict
 
+from _hydrogenlib_core.typefunc import AutoSlotsMeta
+
 
 class c_types(str, enum.Enum):
     pad = 'x'
@@ -39,14 +41,17 @@ class c_types(str, enum.Enum):
     pointer = 'P'
 
 
-class StructMeta(type):
+class StructMeta(AutoSlotsMeta):
+    __migrate_class_vars__ = True
+
     def __init__(cls, name, bases, attrs):
         super().__init__(name, bases, attrs)
 
-        if cls.__s_fields__ is None:
-            cls.__s_fields__ = OrderedDict()
-        else:
-            cls.__s_fields__ = cls.__s_fields__.copy()
+        # if cls.__s_fields__ is None:
+        #     cls.__s_fields__ = OrderedDict()
+        # else:
+        #     cls.__s_fields__ = cls.__s_fields__.copy()
+        cls.__s_fields__ = cls.__s_fields__.copy() if cls.__s_fields__ else OrderedDict()
 
         new_fields = OrderedDict()
         for name, anno in inspect.get_annotations(cls).items():
@@ -135,3 +140,7 @@ class Struct(metaclass=StructMeta):
             )
         )
         return f'{self.__class__.__name__}' f"({kv_string})"
+
+    def __getattr__(self, item):
+        attr = getattr(type(self.__class__), item)  # 从元类中重新提取属性
+        return attr
