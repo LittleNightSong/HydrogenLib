@@ -43,13 +43,21 @@ class ResourceProvider(ABC):
 
 class Resource(ABC):
     url: str | Any = None
+    released: bool = False
 
     def __fspath__(self):
-        raise NotImplemented
+        if self.virtual:
+            raise FileNotFoundError("virtual resource don't have real fs-path")
+        else:
+            raise NotImplemented
+
+    def check_released(self):
+        if self.released:
+            raise RuntimeError("resource is released")
 
     @property
     @abstractmethod
-    def visual(self) -> bool:
+    def virtual(self) -> bool:
         ...
 
     def open(
@@ -64,6 +72,7 @@ class Resource(ABC):
 
         :return: 资源 IO 流，实现了 typing.IO 接口
         """
+        self.check_released()
         return open(self, mode, buffering, encoding, errors, opener=opener)
 
     def release(self) -> None:
@@ -75,7 +84,7 @@ class Resource(ABC):
 
         当对象被回收时，此函数自动被调用
         """
-        ...
+        self.released = True
 
     def parse_as[T](self, type: type[T] | typing.Callable[[typing.Self], T]) -> T:
         """
@@ -85,6 +94,7 @@ class Resource(ABC):
         :return: 经过转换的对象
         :raises: 不定
         """
+        self.check_released()
         if hasattr(type, '__from_resource__'):
             return type.__from_resource__(type)
         else:

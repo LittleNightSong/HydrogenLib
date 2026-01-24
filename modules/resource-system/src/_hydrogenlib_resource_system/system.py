@@ -49,9 +49,7 @@ class ResourceSystem:
             return self._system.mount(prefix, provider(source))
 
     def bind(self, dst, src):
-        return self._system.mount(
-            dst, BindProvider(src)
-        )
+        return self._system.bind(dst, src)
 
     def open(self, url, mode='r', encoding='utf-8', **query):
         return self.get(url, **query).open(mode, encoding)

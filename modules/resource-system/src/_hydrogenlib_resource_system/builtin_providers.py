@@ -4,6 +4,7 @@ import builtins
 import os
 import tempfile
 import typing
+from abc import ABCMeta
 from pathlib import PurePosixPath, Path
 from typing import Any, Sequence
 
@@ -15,9 +16,18 @@ if typing.TYPE_CHECKING:
 import zipfile
 
 
+class AdvancedResourceProvider(ResourceProvider, metaclass=ABCMeta):
+    def __xor__(self, other):
+        return OverlayerProvider([other])
+
+
 class LocalResource(Resource):
     def __init__(self, local_path: str | Path):
         self.local_path = local_path
+
+    @property
+    def virtual(self) -> bool:
+        return False
 
     def __fspath__(self) -> str:
         return str(self.local_path)
@@ -27,7 +37,7 @@ class LocalResource(Resource):
         return os.stat(self).st_size
 
 
-class BindProvider(ResourceProvider):
+class BindProvider(AdvancedResourceProvider):
     def __init__(self, prefix):
         self.prefix = PurePosixPath(prefix)
 
@@ -63,7 +73,9 @@ class BindProvider(ResourceProvider):
         )
 
 
-class FSProvider(ResourceProvider):
+class FSProvider(AdvancedResourceProvider):
+    __slots__ = ('root',)
+
     # 拼接路径
     def __init__(self, root: str | Path):
         self.root = Path(root)
@@ -111,7 +123,9 @@ class AppProvider(FSProvider):
         super().__init__(app_dir or Path.cwd())
 
 
-class TempProvider(ResourceProvider):
+class TempProvider(AdvancedResourceProvider):
+    __slots__ = ('temp_dir_manager', 'temp_dir')
+
     def __init__(self, suffix=None, prefix=None):
         self.temp_dir_manager = tempfile.TemporaryDirectory(suffix, prefix)
         self.temp_dir = Path(self.temp_dir_manager.name)
@@ -145,23 +159,51 @@ class TempProvider(ResourceProvider):
 
 
 class ZipResource(Resource):
-    def __init__(self, zipio):
+    __slots__ = ('_path', '_io')
+
+    def __init__(self, path, zipio):
+        self._path = path
         self._io = zipio
+
+    def virtual(self) -> bool:
+        return True
 
     def release(self) -> None:
         self._io.close()
+        super().release()
 
-    def __fspath__(self):
+    def open(
+            self,
+            mode='r',
+            encoding=None,
+            buffering=-1,
+            errors: str | None = None,
+            opener: typing.Callable[[str, int], int] | None = None) -> typing.IO:
         raise NotImplemented
 
+    @property
+    def binary(self) -> builtins.bytes:
+        data = self._io.read()
+        self._io.seek(0)
+        return data
 
-class ZipProvider(ResourceProvider):
+    @property
+    def text(self) -> str:
+        text = self._io.read().decode()
+        self._io.seek(0)
+        return text
+
+
+class ZipProvider(AdvancedResourceProvider):
+    __slots__ = ('_zip', '_cache', '_zipfile')
+
     def list(self, path: PurePosixPath, query: dict[str, Any], resource_system: CoreResourceSystem) -> builtins.list:
         raise NotImplemented
 
     def get(self, path: PurePosixPath, query: dict[str, Any], resource_system: CoreResourceSystem) -> Resource | None:
         pwd = query.get('pwd', None)
         return ZipResource(
+            path,
             self._zip.open(str(path), force_zip64=True, pwd=pwd)
         )
 
@@ -169,7 +211,12 @@ class ZipProvider(ResourceProvider):
         raise NotImplemented
 
     def exists(self, path: PurePosixPath, query: dict[str, Any], resource_system: CoreResourceSystem) -> bool:
-        raise NotImplemented
+        if path in self._cache:
+            return self._cache[path]
+
+        result = path in self._zip.namelist()
+        self._cache[path] = result
+        return result
 
     def remove(self, path: PurePosixPath, query: dict[str, Any], resource_system: CoreResourceSystem):
         raise NotImplemented
@@ -177,14 +224,17 @@ class ZipProvider(ResourceProvider):
     def __init__(self, file):
         self._zipfile = file
         self._zip = zipfile.ZipFile(file)
+        self._cache = {}
 
     def close(self):
         self._zip.close()
 
 
-class OverlayerProvider(ResourceProvider):
+class OverlayerProvider(AdvancedResourceProvider):
+    __slots__ = ('_providers',)
+
     def __init__(self, providers: Sequence[ResourceProvider]):
-        self._providers = providers
+        self._providers = list(providers)
 
     def _call(self, method, *args, **kwargs):
         for provider in self._providers:
@@ -208,3 +258,7 @@ class OverlayerProvider(ResourceProvider):
 
     def remove(self, path: PurePosixPath, query: dict[str, Any], resource_system: CoreResourceSystem):
         return self._call('remove', path, query, resource_system)
+
+    def __xor__(self, other):
+        self._providers.append(other)
+        return self

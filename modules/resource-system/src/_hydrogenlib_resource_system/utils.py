@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Callable
 
-from .builtin_providers import BindProvider, OverlayerProvider
+from .builtin_providers import OverlayerProvider
 from .core.provider import Resource, ResourceProvider
 from .system import ResourceSystem
 
@@ -66,9 +66,7 @@ def create_system(mounts: dict[str, _ProviderSpec | list[_ProviderSpec]]):
     system = ResourceSystem()
 
     def solve_provider(provider):
-        if isinstance(provider, str):
-            return BindProvider(provider)
-        elif isinstance(provider, list):
+        if isinstance(provider, list):
             return OverlayerProvider(list(map(solve_provider, provider)))
         elif isinstance(provider, ResourceProvider):
             return provider
@@ -76,5 +74,10 @@ def create_system(mounts: dict[str, _ProviderSpec | list[_ProviderSpec]]):
             raise ValueError(f'Not a provider: {provider}')
 
     for prefix, provider in mounts.items():
+        if isinstance(provider, str):
+            system.bind(prefix, provider)
+            continue
         provider = solve_provider(provider)
         system.mount(prefix, provider)
+
+    return system

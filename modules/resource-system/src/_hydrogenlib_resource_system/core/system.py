@@ -7,8 +7,11 @@ from .url import parse_url, URLInfo
 
 
 class MountInfo(NamedTuple):
-    path: PurePosixPath
-    provider: ResourceProvider
+    scheme: str = None
+    path: PurePosixPath = None
+    provider: ResourceProvider = None
+    bind: bool = False
+    bind_target: str = None
 
     def get(self, path, query, rs):
         return self.provider.get(path, query, rs)
@@ -27,33 +30,62 @@ class MountInfo(NamedTuple):
 
 
 class CoreResourceSystem:
+    __max_find_count__ = 1000
 
     def __init__(self):
         self._mounttab = {}  # type: dict[str, list[MountInfo]]
 
-    def mount(self, prefix: str, provider: ResourceProvider | type[ResourceProvider]):
-        URLInfo = parse_url(prefix)
-        scheme, path = URLInfo.scheme, URLInfo.path
-
+    def _add_mount(self, mount_info: MountInfo):
+        scheme = mount_info.scheme
         if scheme not in self._mounttab:
             self._mounttab[scheme] = []
+
+        self._mounttab[scheme].append(mount_info)
+
+    def mount(self, prefix: str, provider: ResourceProvider | type[ResourceProvider]):
+        info = parse_url(prefix)
 
         if isinstance(provider, type):
             provider = provider()
 
-        self._mounttab[scheme].append(MountInfo(path, provider))
+        self._add_mount(
+            MountInfo(
+                info.scheme, info.path,
+                provider
+            )
+        )
+
+    def bind(self, url, other):
+        info = parse_url(url)
+        self._add_mount(
+            MountInfo(
+                info.scheme, info.path,
+                bind=True,
+                bind_target=other
+            )
+        )
 
     def find_mount(self, url: str) -> tuple[MountInfo | None, URLInfo]:
-        url_info = parse_url(url)
-        scheme, path = url_info.scheme, url_info.path
+        def find(url_):
+            url_info = parse_url(url_)
+            scheme, path = url_info.scheme, url_info.path
 
-        if scheme in self._mounttab:
-            for mountinfo in self._mounttab[scheme]:
-                mpath = mountinfo.path
-                if path.is_relative_to(mpath):
-                    return mountinfo, url_info
+            if scheme in self._mounttab:
+                for mountinfo in self._mounttab[scheme]:
+                    mpath = mountinfo.path
+                    if path.is_relative_to(mpath):
+                        return mountinfo, url_info
 
-        return None, url_info
+            return None, url_info
+
+        cnt = 0
+        minfo, uinfo = find(url)
+        while minfo.bind:
+            if cnt > self.__max_find_count__:
+                raise RecursionError(cnt)
+            minfo, uinfo = find(minfo.bind_target)
+
+        return minfo, uinfo
 
     def get_mount(self, url: str) -> tuple[MountInfo, URLInfo]:
         minfo, url_info = self.find_mount(url)
