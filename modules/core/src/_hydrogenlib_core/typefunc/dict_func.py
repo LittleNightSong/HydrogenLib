@@ -24,15 +24,21 @@ class ObjectiveDict:
         return self._dict
 
 
-def extract_as_dict(values, *keys):
+def dict_pack(values, *keys):
     return {
         k: v for k, v in zip(keys, values)
     }
 
 
 # 字典解包
-def unpack_to_tuple(dct, *keys):
+def dict_unpack(dct, *keys):
     return (dct[k] for k in keys)
+
+
+def dict_extract(dct, *keys):
+    return {
+        k: dct[k] for k in keys
+    }
 
 
 class SubDict(MutableMapping):

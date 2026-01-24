@@ -6,7 +6,7 @@ from inspect import stack as call_stack
 from .list_func import hasindex
 
 
-def get_args(func):
+def get_parameters(func):
     for i in inspect.signature(func).parameters.values():
         yield i
 
@@ -35,9 +35,9 @@ def is_instance(ins_or_cls):
     return not isinstance(ins_or_cls, type)
 
 
-def get_qualname(func_type_or_ins: typing.Union[types.FunctionType, type, object]):
+def get_full_qualname(func_type_or_ins: typing.Union[types.FunctionType, type, object]):
     if is_instance(func_type_or_ins) and not is_function(func_type_or_ins):
-        return get_qualname(func_type_or_ins.__class__)
+        return get_full_qualname(func_type_or_ins.__class__)
     return f'{func_type_or_ins.__module__}.{func_type_or_ins.__qualname__}'
 
 
@@ -94,8 +94,12 @@ class Function:
         return get_module(self._func)
 
     @property
+    def full_qualname(self):
+        return get_full_qualname(self._func)
+
+    @property
     def qualname(self):
-        return get_qualname(self._func)
+        return self._func.__qualname__
 
     @property
     def signature(self):
@@ -105,13 +109,13 @@ class Function:
 
     @property
     def params(self):
-        return tuple(get_args(self._func))
+        return tuple(get_parameters(self._func))
 
     def match(self, *args, **kwargs):
         return self._signature.bind(*args, **kwargs)
 
     def __str__(self):
-        return f'<Func {self.qualname} ({self._signature})>'
+        return f'<Func {self.full_qualname} ({self._signature})>'
 
     def __call__(self, *args, **kwargs):
         return self._func(*args, **kwargs)
@@ -210,3 +214,6 @@ def oneshot[T: 'typing.Callable'](func: T | None = None, num=1) -> _Oneshot[T]:
         return _Oneshot(func, num)
 
     return decorator(func) if func else decorator
+
+
+once = oneshot  # 别名
