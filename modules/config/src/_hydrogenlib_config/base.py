@@ -1,14 +1,12 @@
-import json
 from functools import wraps
 from typing import Any
 
-from _hydrogenlib_core.typefunc import ObjectiveDict
 from . import core
-from .global_type_registry import global_type_registry
 from . import pre_mixin as _pre_mixin
+from .global_type_registry import global_type_registry
 
 
-def create_validator_for_namedtuple(namedtuple_type):
+def make_validator_for_namedtuple(namedtuple_type):
     # Validates and converts input to namedtuple type
     @wraps(namedtuple_type)
     def validator(data, *args):
@@ -31,14 +29,14 @@ class NamedTupleMixin(_pre_mixin.Mixin):
 
     def apply(self, field: core.field.FieldInfo, type_registry: core.type_registry.TypeRegistry):
         if field.validator is None:
-            field.validator = create_validator_for_namedtuple(field.type)
+            field.validator = make_validator_for_namedtuple(field.type)
 
 
 class ConfigBase(core.base.ConfigBase, middle=True):
     __config_type_registry__ = 'global'
 
-    def __init_subclass__(cls, **kwargs):
-        if kwargs.get("middle", False): return
+    def __init_subclass__(cls, *, middle=False, **kwargs):
+        if middle: return
         mixins = kwargs.get('mixins', [NamedTupleMixin])
 
         if cls.__config_type_registry__ == 'global':

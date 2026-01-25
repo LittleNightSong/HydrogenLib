@@ -1,6 +1,6 @@
+import inspect
 from typing import OrderedDict
 
-from _hydrogenlib_core.typefunc import is_function
 from _hydrogenlib_core.typefunc import iter_annotations
 from .field import FieldInfo, Field
 
@@ -25,16 +25,12 @@ class ConfigBase:
                     field_info.name = name
                 if field_info.type is None:
                     field_info.type = anno
-
-
-            elif is_function(value):
-                field_info = FieldInfo(
-                    name, anno, default_factory=value
-                )
-            else:
+            elif not (inspect.ismethoddescriptor(value) or inspect.isdatadescriptor(value)):
                 field_info = FieldInfo(
                     name, anno, default=value
                 )
+            else:
+                continue
 
             field = Field(field_info)
 
