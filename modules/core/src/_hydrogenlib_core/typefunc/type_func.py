@@ -1,5 +1,6 @@
 import inspect
 import typing
+from typing import Sequence
 
 
 def get_subclasses(cls):
@@ -187,3 +188,13 @@ class AutoCompare:
 
     def __ge__(self, other):
         return self._auto_compare_attrs('ge', other, True)
+
+
+def make_object(attrs: dict, bases: Sequence[type], metaclass: type[type] = type, **kwargs):
+    final_attrs = {**attrs, **kwargs}
+    # 构建类型
+    tp = metaclass(
+        '<dynamic type>', tuple(bases), final_attrs
+    )
+    obj = tp()
+    return obj

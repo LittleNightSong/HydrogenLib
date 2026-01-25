@@ -20,6 +20,7 @@ class alias:
         self.path = str(attr_path)
         self.mode = mode
         self.cve = classvar_enabled
+        self._splited_path = self.path.split('.')
 
     def __str__(self):
         return self.path
@@ -28,7 +29,7 @@ class alias:
         return cls(item)
 
     def __getitem__(self, item):
-        self.path = self.path.removesuffix('.') + '.' + str(item)
+        self.path = self.path.removesuffix('.') + f'.{item}'
         return self
 
     def __call__(self, *, mode=None, classvar_enabled=None) -> Self:
@@ -45,19 +46,20 @@ class alias:
                 instance = owner
             else:
                 return self
+
         if self.mode in {aliasmode.read_write, aliasmode.read}:
-            return getattr(instance, self.path)
+            return getattr(instance, self._splited_path)
         raise PermissionError("Can't read alias")
 
     def __set__(self, instance, value):
         if self.mode in {aliasmode.read_write, aliasmode.write}:
-            setattr(instance, self.path, value)
+            setattr(instance, self._splited_path, value)
             return
         raise PermissionError("Can't write alias")
 
     def __delete__(self, instance):
         if self.mode in {aliasmode.read_write, aliasmode.write}:
-            delattr(instance, self.path)
+            delattr(instance, self._splited_path)
         raise PermissionError("Can't delete alias")
 
 

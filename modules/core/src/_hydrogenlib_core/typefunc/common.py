@@ -1,4 +1,4 @@
-from typing import Protocol, Self
+from typing import Protocol, Self, Sequence
 
 builtin_types = (
     int, float, str, bool,
@@ -11,21 +11,27 @@ def is_error(exception) -> bool:
     return isinstance(exception, Exception)
 
 
-def get_attr_by_path(obj, path):
+def get_attr_by_path(obj, path: str | Sequence[str]):
     """
     :param path: 引用路径
     :param obj: 起始对象
 
     """
-    path_ls = path.split(".")
+    if isinstance(path, str):
+        path_ls = path.split(".")
+    else:
+        path_ls = path
     cur = obj
     for attr in path_ls:
         cur = getattr(cur, attr)
     return cur
 
 
-def set_attr_by_path(obj, path, value):
-    path_ls = path.split(".")
+def set_attr_by_path(obj, path: str | Sequence[str], value):
+    if isinstance(path, str):
+        path_ls = path.split(".")
+    else:
+        path_ls = path
     cur = obj
     for i, attr in path_ls[:-1]:
         cur = getattr(cur, attr)
@@ -33,8 +39,11 @@ def set_attr_by_path(obj, path, value):
     setattr(cur, path_ls[-1], value)
 
 
-def del_attr_by_path(obj, path):
-    path_ls = path.split(".")
+def del_attr_by_path(obj, path: str | Sequence[str]):
+    if isinstance(path, str):
+        path_ls = path.split(".")
+    else:
+        path_ls = path
     cur = obj
     for i, attr in path_ls[:-1]:
         cur = getattr(cur, attr)
