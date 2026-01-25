@@ -1,13 +1,14 @@
 import ctypes
-import inspect
-from functools import wraps
+import functools
 
-from ._func import c_function
-from ._types import _Ctype
+from _hydrogenlib_core.typefunc import alias
+from ._types import CType, Prototype
 
 
 class _DLLMeta(type):
     def __getattr__(self, item) -> 'DLL':
+        if item.startswith('_'):
+            raise AttributeError(f'{self.__name__} has no attribute {item!r}')
         return self(item)
 
 
@@ -17,28 +18,22 @@ class DLL(metaclass=_DLLMeta):
         self._dll = ctypes.CDLL(self._name)
 
     def value(self, name: str, type):
-        type = _Ctype.as_ctype(type)
+        type = CType.as_ctype(type)
         return type.in_dll(self._dll, name)
 
-    def __call__(self, maybe_func=None, *, name: str = None):
+    def __call__(self, maybe_func=None, *, name: str = None, output_param=None):
         def decorator(func):
             nonlocal name
             name = name or func.__name__
 
-            prototype = c_function(name=name)(func)
-            func_ptr = prototype(getattr(
-                self._dll, name
-            ))
-            signature = inspect.signature(func)
+            prototype = Prototype.from_pyfunc(func)
+            if output_param:
+                prototype = prototype.replace(output_param=output_param)
 
-            @wraps(func)
-            def wrapper(*args, **kwargs):
-                bound_args = signature.bind(*args, **kwargs)
-                bound_args.apply_defaults()
-                return func_ptr(
-                    *bound_args.args, **bound_args.kwargs
-                )
+            wrapper = functools.update_wrapper(prototype.bind(self, name), func)
 
             return wrapper
 
         return decorator if not maybe_func else decorator(maybe_func)
+
+    _as_parameter_ = __cobj__ = alias['_dll']

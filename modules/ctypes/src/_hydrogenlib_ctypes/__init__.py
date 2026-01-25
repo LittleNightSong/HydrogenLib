@@ -1,10 +1,13 @@
 """
-Use:
-    import ...
+Usage:
+    from ... import ...
     user32 = Dll('user32')
 
     @user32
-    def MessageBoxW(hwnd: int, text: str, caption: str, uType: int) -> int: ...
+    def MessageBoxW(hwnd: AnyPointer, text: str, caption: str, uType: int) -> int: ...
+
+    @user32(name='MessageBoxA')
+    def MessageBox(hWnd: AnyPointer, text: bytes, caption: bytes, uType: int) -> int: ...
 """
 
 from ._dll import DLL

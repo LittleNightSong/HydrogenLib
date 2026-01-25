@@ -28,6 +28,6 @@ def c_function(
             for param in signature.parameters.values()
         ]
 
-        return Prototype(restype, *argtypes, ftype=functype)
+        return Prototype(restype, *argtypes, protocol=functype)
 
     return decorator if not maybe_func else decorator(maybe_func)
