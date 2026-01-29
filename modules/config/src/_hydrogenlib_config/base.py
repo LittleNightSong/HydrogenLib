@@ -1,3 +1,4 @@
+import sys
 from functools import wraps
 from typing import Any
 
@@ -25,31 +26,42 @@ def make_validator_for_namedtuple(namedtuple_type):
 
 class NamedTupleMixin(_pre_mixin.Mixin):
     def check(self, field: core.field.FieldInfo):
-        return issubclass(field.type, tuple) and field.type is not tuple
+        try:
+            return issubclass(field.type, tuple) and field.type is not tuple
+        except TypeError:
+            return False
 
     def apply(self, field: core.field.FieldInfo, type_registry: core.type_registry.TypeRegistry):
         if field.validator is None:
             field.validator = make_validator_for_namedtuple(field.type)
 
 
+default_mixins = (NamedTupleMixin(),)
+
+
 class ConfigBase(core.base.ConfigBase, middle=True):
     __config_type_registry__ = 'global'
+    __config_alias_mapping__ = None
 
-    def __init_subclass__(cls, *, middle=False, **kwargs):
-        if middle: return
-        mixins = kwargs.get('mixins', [NamedTupleMixin])
+    def __init_subclass__(cls, *, middle=False, mixins=default_mixins, **kwargs):
+        if middle:
+            return
 
         if cls.__config_type_registry__ == 'global':
             cls.__config_type_registry__ = global_type_registry.create_sub_registry()  # 创建子注册表
 
         super().__init_subclass__()
+        cls.__config_alias_mapping__ = mapping = dict(
+            cls.__config_alias_mapping__) if cls.__config_alias_mapping__ else {}
 
-        for field in cls.__config_fields__.values():
+        for name, field in cls.__config_fields__.items():
             for mixin in mixins:
-                mixin_ins = mixin()
+                mixin_ins = mixin() if isinstance(mixin, type) else mixin
                 if mixin_ins.check(field.field_info):
                     mixin_ins.apply(field.field_info, cls.__config_type_registry__)
                 del mixin_ins
+
+            mapping[sys.intern(field.key)] = sys.intern(name)
 
     @classmethod
     def from_obj(cls, obj: dict | tuple[tuple[str, Any], ...], extra='allow'):
@@ -77,10 +89,19 @@ class ConfigBase(core.base.ConfigBase, middle=True):
         }
 
     def __str__(self):
-        string = f'{self.__class__.__name__}('
-        for name in self.__config_fields__:
-            value = getattr(self, name)
-            string += f'{name}={value}, '
-        string = string[:-2]
-        string += ')'
+        pairs = ", ".join(
+            map(
+                lambda x: f'{x}={getattr(self, x)!r}',
+                self.__config_fields__
+            )
+        )
+        string = f'{self.__class__.__name__}({pairs})'
         return string
+
+    def __setattr__(self, key, value):
+        if key in self.__config_fields__:
+            super().__setattr__(key, value)
+        elif key in self.__config_alias_mapping__:
+            super().__setattr__(self.__config_alias_mapping__[key], value)
+        else:
+            super().__setattr__(key, value)
