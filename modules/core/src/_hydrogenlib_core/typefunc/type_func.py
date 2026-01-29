@@ -1,6 +1,6 @@
 import inspect
 import typing
-from typing import Sequence
+from typing import Sequence, overload, Literal, Any
 
 
 def get_subclasses(cls):
@@ -41,12 +41,25 @@ def get_subclass_counts_recursion(cls):
     return len(cls.__subclasses__()) + sum(get_subclass_counts_recursion(s) for s in cls.__subclasses__())
 
 
-def iter_annotations(obj, *, globals=None, locals=None, eval_str=False):
+@overload
+def iter_annotations(obj, *, globals=None, locals=None, eval_str=False, with_value: Literal[False] = False) -> tuple[
+    tuple[str, Any]]: ...
+
+
+@overload
+def iter_annotations(obj, *, globals=None, locals=None, eval_str=False, with_value: Literal[True] = False) -> tuple[
+    tuple[str, Any, Any | None]]: ...
+
+
+def iter_annotations(obj, *, globals=None, locals=None, eval_str=False, with_value=False):
     """
     迭代对象中的所有注解以及值(不存在为None)
     """
-    for name, typ in inspect.get_annotations(obj, globals=globals, locals=locals, eval_str=eval_str).items():
-        yield name, typ, getattr(obj, name, None)
+    if with_value:
+        for name, typ in inspect.get_annotations(obj, globals=globals, locals=locals, eval_str=eval_str).items():
+            yield name, typ, getattr(obj, name, None)
+    else:
+        yield from inspect.get_annotations(obj, globals=globals, locals=locals, eval_str=eval_str).items()
 
 
 def iter_attributes(obj):
