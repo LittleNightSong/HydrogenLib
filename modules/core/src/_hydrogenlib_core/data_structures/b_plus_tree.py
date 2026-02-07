@@ -6,16 +6,16 @@ from typing import Union
 
 
 class Node:
+    leaf: bool
+    n: int
+    children: 'list[Node]'
+
     def __init__(self, leaf=True):
         self.leaf = leaf
         self.n = 0
         self.keys = []
         self.values = []
         self.children = []
-
-    def __del__(self):
-        for child in self.children:
-            del child
 
     def __str__(self):
         if self.leaf:
