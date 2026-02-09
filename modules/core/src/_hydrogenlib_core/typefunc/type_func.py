@@ -47,17 +47,17 @@ def iter_annotations(obj, *, globals=None, locals=None, eval_str=False, with_val
 
 
 @overload
-def iter_annotations(obj, *, globals=None, locals=None, eval_str=False, with_value: Literal[True] = False) -> tuple[
+def iter_annotations(obj, *, globals=None, locals=None, eval_str=False, with_value: Literal[True] = True) -> tuple[
     tuple[str, Any, Any | None]]: ...
 
 
-def iter_annotations(obj, *, globals=None, locals=None, eval_str=False, with_value=False):
+def iter_annotations(obj, *, globals=None, locals=None, eval_str=False, with_value=False, default_value=None):
     """
     迭代对象中的所有注解以及值(不存在为None)
     """
     if with_value:
         for name, typ in inspect.get_annotations(obj, globals=globals, locals=locals, eval_str=eval_str).items():
-            yield name, typ, getattr(obj, name, None)
+            yield name, typ, getattr(obj, name, default_value)
     else:
         yield from inspect.get_annotations(obj, globals=globals, locals=locals, eval_str=eval_str).items()
 
