@@ -6,7 +6,7 @@ import pickle
 from os import PathLike
 from typing import Literal, Callable, Any, TypedDict, IO, MutableMapping
 
-from .core.base import ConfigBase
+from _hydrogenlib_config_core.base import ConfigBase
 
 # class _IOFunctionMapping(TypedDict):
 #     load_io: Callable[[IO], MutableMapping[str, Any]]
@@ -60,17 +60,18 @@ def has_field(cfg: ConfigBase, name: str):
     return cfg.__config_fields__.__contains__(name)
 
 
-def config_from_object(cfg, obj: MutableMapping[str, Any]):
+def config_from_object[T](cfg: type[T] | T, obj: MutableMapping[str, Any]) -> T:
     if isinstance(cfg, type):
         cfg = cfg()
 
     for k, v in obj.items():
         setattr(cfg, k, v)
+        # print(cfg, k, v)
 
     return cfg
 
 
-def load_from_file(cfg, file, format='json'):
+def load_from_file[T](cfg: type[T] | T, file, format='json') -> T:
     format_info = format_mro[format]
 
     load_function = format_info['load-file']
@@ -81,7 +82,7 @@ def load_from_file(cfg, file, format='json'):
         return config_from_object(cfg, load_function(file))
 
 
-def load_from_io(cfg, io, format='json'):
+def load_from_io[T](cfg: type[T] | T, io, format='json') -> T:
     format_info = format_mro[format]
 
     return config_from_object(cfg, format_info['load-io'](io))
@@ -91,17 +92,18 @@ def dump_to_file(cfg, file, format='json'):
     format_info = format_mro[format]
 
     dump_function = format_info['dump-file']
+    data = cfg.as_dict(for_serializer=True)
     if dump_function == 'open':
         with open(file, 'w') as f:
-            format_info['dump-io'](f, cfg.to_dict())
+            format_info['dump-io'](f, data)
     else:
-        dump_function(file, cfg.to_dict())
+        dump_function(file, data)
 
 
 def dump_to_io(cfg, io, format='json'):
     format_info = format_mro[format]
 
-    return format_info['dump-io'](io, cfg.to_dict())
+    return format_info['dump-io'](io, cfg.as_dict())
 
 
 # 'json': {
@@ -120,7 +122,7 @@ def dump_to_io(cfg, io, format='json'):
 registry_data_format(
     'json',
     json.load,
-    lambda fp, obj: json.dump(fp, obj)
+    lambda fp, obj: json.dump(obj, fp)
 )
 
 registry_data_format(

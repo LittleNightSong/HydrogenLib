@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from .core.type_registry import TypeRegistry
-from .core.field import FieldInfo
+from _hydrogenlib_config_core.field import FieldInfo
+from _hydrogenlib_config_core.type_registry import TypeRegistry
 
 
 class Mixin(ABC):
