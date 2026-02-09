@@ -22,7 +22,7 @@ class GraphBase[T: Hashable]:
     @property
     def vertices(self) -> Iterable[T]:
         """ returns the vertices of a graph """
-        return list(self.graph.keys())
+        return self.graph.keys()
 
     @property
     def edges(self) -> Iterable[tuple[T, T]]:
@@ -165,10 +165,10 @@ class WeightedGraph(GraphBase):
             if vertex not in self.graph:
                 self.graph[vertex] = {}
 
-    def add_edge(self, vertex1, vertex2):
+    def add_edge(self, left, right):
         """ Adds a weighted edge between vertex1 and vertex2 """
-        self.add_vertex(vertex1, vertex2)
-        self.add_weighted_edge(vertex1, vertex2, None)
+        self.add_vertex(left, right)
+        self.add_weighted_edge(left, right, None)
 
     def add_weighted_edge(self, vertex1, vertex2, weight):
         """ Adds a weighted edge between vertex1 and vertex2 """
