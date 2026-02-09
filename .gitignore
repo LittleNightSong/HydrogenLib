@@ -9,6 +9,8 @@
 /.vscode/
 
 # Files in Dev
-/.temp/
-/**/.tests
+/**/.temp/
+/**/.tests/
+/**/tests
+/**/dev-scripts/
 /uv.lock
