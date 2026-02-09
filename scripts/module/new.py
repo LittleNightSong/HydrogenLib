@@ -36,7 +36,8 @@ packages = ["src/{package_name}"]
 
 name_matcher = re.compile(r"[a-zA-Z_][a-zA-Z0-9_]*")
 
-if __name__ == '__main__':
+
+def main():
     name = '-'.join(sys.argv[1:]).lower()
     project = Project()
 
@@ -48,7 +49,7 @@ if __name__ == '__main__':
         console.error(f"Module [bold]{name}[/bold] is already exists.")
 
     # Create the module
-    module = project.get_module(name, check=False)
+    module = project.find_module(name, check=False)
     import_name = module.import_name
     create_dir_by_struct(module.path, {
         'src': {
@@ -57,6 +58,12 @@ if __name__ == '__main__':
                 '__about__.py': 'version = "0.0.1" '
             }
         },
+        '.tests': {},
+        '.hydro-ignore': None,
         'README.md': None,
         'pyproject.toml': template.format(module_name=module.package_name, package_name=import_name),
     })
+
+
+if __name__ == '__main__':
+    main()

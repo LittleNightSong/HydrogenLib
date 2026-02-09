@@ -9,7 +9,7 @@ def main():
     modules = sys.argv[1:]
     for m in modules:
         with console.status("Processing %s" % m):
-            module = project.get_module(m)
+            module = project.find_module(m)
             shutil.rmtree(module.path / 'dist', ignore_errors=True)
 
 

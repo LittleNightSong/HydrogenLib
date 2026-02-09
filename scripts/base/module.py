@@ -1,20 +1,9 @@
-import dataclasses
-import tomllib
 from pathlib import Path
 
 from scripts.commands import hatchc, uvc
 from . import convert_to_import_name
 from .base import convert_to_package_name
-
-
-@dataclasses.dataclass
-class ProjectInfo:
-    name: str
-    require_python: str
-    keywords: list[str]
-    authors: list[dict]
-    dependencies: list[str]
-    packages: list[str]
+from .project_info import ProjectInfo
 
 
 class ModuleFiles:
@@ -59,7 +48,7 @@ class Module:
     @classmethod
     def find(cls, name: str):
         from .project import Project
-        return Project().get_module(name)
+        return Project().find_module(name)
 
     @property
     def version(self):
@@ -74,18 +63,12 @@ class Module:
         return self.path.name
 
     @property
-    def project_info(self):
-        with open(Path(self) / 'pyproject.toml', 'rb') as f:
-            toml = tomllib.load(f)
-            project = toml['project']
-            return ProjectInfo(
-                name=project['name'],
-                keywords=project['keywords'],
-                require_python=project['requires-python'],
-                authors=project['authors'],
-                dependencies=project['dependencies'],
-                packages=toml['tool']['hatch']['build']['targets']['wheel']['packages']
-            )
+    def project_info(self) -> ProjectInfo:
+        return ProjectInfo.load(self.path / 'pyproject.toml')
+
+    @project_info.setter
+    def project_info(self, v):
+        v.dump(self.path / 'pyproject.toml')
 
     @property
     def package_name(self):

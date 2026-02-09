@@ -41,24 +41,33 @@ class Project:
 
         current_dir = pathlib.Path(path) if path else pathlib.Path().cwd()
 
+        cnt = 0
         while not is_project_dir(current_dir):
+            print(current_dir)
             current_dir = current_dir.parent
-            if current_dir.root == current_dir:
-                raise FileNotFoundError("Cannot find project ")
+            cnt += 1
+            if cnt > 1000:
+                raise RuntimeError("Project not found")
 
         project_dir = current_dir
         return cls(project_dir)
 
-    def get_module(self, name: str, check=True):
+    def find_module(self, name: str, check=True, allow_ignored_modules: bool = False):
         module_dir = (self.path / 'modules' / name)
+
+        if (not allow_ignored_modules) and (module_dir / '.hydro-ignore').exists():
+            raise FileNotFoundError(f"Module {name} is ignored")
 
         if check:
             self.check_module(name)
 
         return Module(module_dir)
 
-    def iter_modules(self):
+    def iter_modules(self, allow_ignored_modules: bool = False):
         for module_dir in (self.path / 'modules').iterdir():
+            if (not allow_ignored_modules) and (module_dir / '.hydro-ignore').exists():
+                continue
+
             if module_dir.is_dir():
                 yield Module(module_dir)
 
@@ -69,6 +78,9 @@ class Project:
 
         if not module_dir.is_dir():
             raise NotADirectoryError(f"Find {name}, but it is not a module")
+
+        if (module_dir / '.hydro-ignore').exists():
+            raise ValueError(f"Module {name} is ignored")
 
     def is_module(self, name):
         module_dir = (self.path / 'modules' / name)
