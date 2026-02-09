@@ -6,23 +6,18 @@ import inspect
 import typing
 from typing import Callable, overload, Any, Generator
 
+from _hydrogenlib_core.data_structures import Stack
+from _hydrogenlib_core.typefunc import split_type, get_origin
 from _hydrogenlib_core.utils import InstanceMapping
 
 IMP = InstanceMapping
-
-from _hydrogenlib_core.data_structures import Stack
-from _hydrogenlib_core.typefunc import split_type, get_origin, call_property, AutoSlots
-
 type Validator[DataType, TargetType, *subtypes] = Callable[[DataType, TargetType, tuple[*subtypes]], TargetType]
 type TypeRegistryDataStructure = \
     InstanceMapping[type, InstanceMapping[type, dict[tuple[type, ...], ValidatorMetadata]]]
 
 
-# def validator(data, target_type, subtypes):
-
-
-@dataclasses.dataclass(frozen=True)
-class ValidatorMetadata[DT, TT, *subtypes](AutoSlots):
+@dataclasses.dataclass(frozen=True, slots=True)
+class ValidatorMetadata[DT, TT, *subtypes]:
     validator: Validator[DT, TT, *subtypes]
     target_type: type[TT]
 
@@ -106,6 +101,7 @@ class TypeRegistry:
     def get_validator_metadata[SourceType, TargetType](
             self, source_type: type[SourceType], target_type: type[TargetType], default=True
     ) -> ValidatorMetadata[SourceType, TargetType, Any]:
+        # print('lasdjflkasdjf')
         tp, args = split_type(target_type)
 
         # 1. 尝试从有源类型的注册表中查找（带参数）
@@ -125,18 +121,24 @@ class TypeRegistry:
         if result is None:
             # 先尝试带参数的查找
             no_source_dict = self._validators_no_source_type.get(tp, {})
-            result = no_source_dict.get(args, no_source_dict.get(()))
+            result = no_source_dict.get(args) or no_source_dict.get(())
 
-        if result is None and default:
-            result = ValidatorMetadata(self._default_validator, None)
+        # result = (
+        #         (_ := self._registry.get(source_type)) and (_ := _.get(tp)) and (_.get(args))
+        # ) or (
+        #
+        # )
 
         if result is None:
+            if default:
+                result = ValidatorMetadata(self._default_validator, None)
+                return result
             raise TypeError(f"No validators found for this type {target_type}")
 
         return result
 
     def get_validator(self, source_type: type, target_type: type) -> Validator:
-        return self.get_validator_metadata(source_type, target_type).validator
+        return self.get_validator_metadata(source_type, target_type).validator  # type: ignore
 
     def get_validator_metadata_allow_base_classes(self, st, tt):
         mro = tt.__mro__
