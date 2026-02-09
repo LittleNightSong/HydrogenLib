@@ -2,4 +2,4 @@
 #
 # SPDX-License-Identifier: HydrogenLib License
 
-version = '0.2.0'
+version = '3.0'
