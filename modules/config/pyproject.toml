@@ -23,7 +23,7 @@ Issues = "https://github.com/LittleSong2025/HydrogenLib/issues"
 Source = "https://github.com/LittleSong2025/HydrogenLib"
 
 [tool.hatch.version]
-path = "src/_hydrogenlib_config/__about__.py"
+path = "src/_hydrogenlib_config_core/__about__.py"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/_hydrogenlib_config"]
+packages = ["src/_hydrogenlib_config", "src/_hydrogenlib_config_core"]
