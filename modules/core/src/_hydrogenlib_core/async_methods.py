@@ -58,10 +58,10 @@ class ProtectedTask:
         return self._task.done()
 
     def cancel(self):
-        self._loop.call_soon_threadsafe(self._task.cancel, ())
+        self._loop.call_soon_threadsafe(self._task.cancel)
 
-    def __await__(self):
-        return self._task.__await__()
+    def result(self):
+        return self._task.result()
 
 
 class ThreadEventLoop:
@@ -82,8 +82,8 @@ class ThreadEventLoop:
         asyncio.set_event_loop(self._loop)
         self._loop.run_forever()
 
-    def start(self):
-        self._loop = new_event_loop()
+    def start(self, loop=None):
+        self._loop = loop or new_event_loop()
         self._thread = run_new_thread(self.__thread_main)
 
     def is_running(self):

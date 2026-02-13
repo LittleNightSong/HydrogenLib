@@ -1,21 +1,5 @@
 import logging
 import sys
-from decimal import Decimal
-from typing import Callable
-
-outputplus_logger = logging.getLogger("HydrogenLib.OutputPlus")
-
-
-def double(num, context=...):
-    return Decimal(str(num), context=context)
-
-
-def mapping(stream, in_min, in_max, out_min, out_max, rt_function: Callable = float):
-    stream = double(stream)
-    in_min, in_max, out_min, out_max = map(double, (in_min, in_max, out_min, out_max))
-    outputplus_logger.debug(f"Mapping data {stream} from {in_min} {in_max} to {out_min} {out_max}")
-    return rt_function(out_min + (in_max - in_min) * (stream - in_min) / (out_max - out_min))
-
 
 def get_foreground(r, g, b):
     if not any((r, g, b)):
@@ -33,8 +17,7 @@ def get_color_head(fr_r=0, fr_g=0, fr_b=0, bk_r=0, bk_g=0, bk_b=0):
     return get_foreground(fr_r, fr_g, fr_b) + get_background(bk_r, bk_g, bk_b)
 
 
-def color_init():
-    return "\033[0m"
+color_clear = "\033[0m"
 
 
 def print_color(
@@ -69,10 +52,10 @@ def print_color(
     r, g, b = background[:3:]
     print(get_background(r, g, b), end='', file=file, flush=flush)
     print(*values, sep=sep, end=end, file=file, flush=flush)
-    print(color_init(), end='', file=file, flush=flush)
+    print(color_clear, end='', file=file, flush=flush)
 
 
-class Cursor:
+class ConsoleCursor:
     def left(self, n):
         print(f"\033[{n}D", end='', flush=True)
         return self

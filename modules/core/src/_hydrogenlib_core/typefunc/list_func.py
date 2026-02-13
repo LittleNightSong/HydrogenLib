@@ -1,55 +1,6 @@
+import copy
 import fractions
 from collections.abc import Iterable
-
-
-def d1(value, lenght):
-    return [value for _ in range(lenght)]
-
-
-def d2(value, lenght, width):
-    return [d1(value, width) for _ in range(lenght)]
-
-
-def d3(value, lenght, width, height):
-    return [d2(value, lenght, width) for _ in range(height)]
-
-
-def d1_init(ls, value):
-    lenght = len(ls)
-    return d1(value, lenght)
-
-
-def d2_init(ls, value):
-    lenght = len(ls)
-    width = len(ls[0])
-    return d2(value, lenght, width)
-
-
-def d3_init(ls, value):
-    lenght = len(ls)
-    width = len(ls[0])
-    height = len(ls[0][0])
-    return d3(value, lenght, width, height)
-
-
-def sub(list1, list2):
-    # is lst1 in lst2
-    return list1 in list2
-
-
-def parent(list1, list2):
-    # is lst1 of lst2
-    return list2 in list1
-
-
-def match(list1, list2):
-    return list1 == list2
-
-
-def indexs_of(lst, indexs=None):
-    if indexs is None:
-        return []
-    return [lst[i] for i in indexs]
 
 
 def hasindex(iterable, index):
@@ -86,38 +37,40 @@ class _ListConcater:
     __slots__ = ('lists', 'lengths')
 
     def __init__(self, *ls):
-        self.lists = ls
-        self.lengths = []
+        self.lists = list(ls)
 
-        self.flush()
-
-    def flush(self):
-        self.lengths = [len(i) for i in self.lists]
-
-    def _find_list(self, i, num):
+    def _find_list(self, num):
         if num < 0:
-            num += sum(self.lengths)
-        if i >= len(self.lengths):
-            raise IndexError('index out of the range')
-        if num >= self.lengths[i]:
-            return self._find_list(i + 1, num - self.lengths[i])
-        return i, num
+            num += len(self)
+
+        for i, ls in enumerate(self.lists):
+            delta = num - len(ls)
+            if delta > 0:
+                num = delta
+            else:
+                return i, delta
+
+        raise IndexError('index out of the range')
 
     def _get(self, i):
-        last_idx, list_idx = self._find_list(0, i)
-        return self.lists[last_idx][list_idx]
+        outter_index, inner_index = self._find_list(i)
+        return self.lists[outter_index][inner_index]
 
     def _set(self, i, value):
-        last_idx, list_idx = self._find_list(0, i)
-        self.lists[last_idx][list_idx] = value
+        outter_index, inner_index = self._find_list(i)
+        self.lists[outter_index][inner_index] = value
 
     def append(self, v):
-        self.lists[-1].append(v)
-        self.flush()
+        if self.lists:
+            self.lists[-1].append(v)
+        else:
+            self.lists.append([v])
 
     def extend(self, v):
-        self.lists[-1].extend(v)
-        self.flush()
+        if self.lists:
+            self.lists[-1].extend(v)
+        else:
+            self.lists.append(copy.copy(v))
 
     def list(self):
         return [
@@ -147,11 +100,16 @@ class _ListConcater:
 
             if not len(value) == _get_range_length(start, stop, step):
                 raise ValueError('length of value is not equal to the range')
-            for si, oi in zip(range(start, stop, step), range(len(value))):
-                self._set(si, value[oi])
+
+            for i, v in zip(range(start, stop, step), value):
+                self._set(i, v)
 
     def __len__(self):
-        return sum(self.lengths)
+        lenght = 0
+        for ls in self.lists:
+            lenght += len(ls)
+
+        return lenght
 
 
 def concat(*ls):
@@ -207,5 +165,3 @@ class _ListFillConcater:
 
 def fill_concat(fill_ls, main_ls):
     return _ListFillConcater(fill_ls, main_ls)
-
-

@@ -1,2 +1,1 @@
-from .instance_dict import InstanceMapping, InstanceMappingItem
-
+from .instance_mapping import InstanceMapping, InstanceMappingItem

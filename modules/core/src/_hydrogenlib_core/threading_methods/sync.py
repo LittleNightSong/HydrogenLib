@@ -27,8 +27,8 @@ class SyncResource:
         self._data = InstanceMapping()
         self._lock = lock
 
-    def __get__(self, inst, owner) -> SyncResourceContextManager:
-        if inst not in self._data:
-            self._data[inst] = SyncResourceContextManager(self._lock)
+    def __get__(self, instance, owner) -> SyncResourceContextManager:
+        if instance not in self._data:
+            self._data[instance] = SyncResourceContextManager(self._lock)
 
-        return self._data[inst]
+        return self._data[instance]

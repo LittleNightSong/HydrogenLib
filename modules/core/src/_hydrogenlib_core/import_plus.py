@@ -4,14 +4,18 @@ import os
 import sys
 
 
-def load_source(name, path):
+def load_source(path, name=None):
     if name in sys.modules:
         raise ImportError(f"Module {name} already exists in sys.modules")
 
     if not os.path.exists(path):
         raise FileNotFoundError(f"Cannot find file {path}")
 
+    if name is None:
+        name = os.path.basename(path)[:-3]
+
     spec = importlib.util.spec_from_file_location(name, path)
+
     if spec is None or spec.loader is None:
         raise ImportError(f"Cannot load module {name}(One attribute is None)")
 
@@ -20,29 +24,17 @@ def load_source(name, path):
     return module
 
 
-def load_source_noname(path):
-    """
-    use `os.path.basename` to get module name
-    :param path: source code file path
-    """
-    name = os.path.basename(path)
-    index = name.rfind(".")
-    if index == -1:
-        raise ValueError(f"Invalid file name {name}")
-    name = name[:index]
-    return load_source(name, path)
-
-
 def load_package(name, path):
     if name in sys.modules:
         raise ImportError(f"Package {name} already exists in sys.modules")
 
-    package_path = path + os.sep + name
+    package_path = os.path.join(path, name)
     if not os.path.exists(package_path):
         raise FileNotFoundError(
             f"Cannot find package {name} at {package_path}")
 
     init_filename = os.path.join(package_path, "__init__.py")
+
     if not os.path.exists(init_filename):
         raise FileNotFoundError(
             f"Cannot find __init__.py in package {name}")
@@ -59,14 +51,3 @@ def load_package(name, path):
     spec.loader.exec_module(package)
 
     return package
-
-
-def import_source(path):
-    path, name = os.path.split(path)
-    return load_source(name[:-3], path)
-
-
-def import_package(path):
-    name = os.path.basename(path)
-    path = os.path.dirname(path)
-    return load_package(name, path)

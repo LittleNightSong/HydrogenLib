@@ -3,9 +3,6 @@ import socket
 from ipaddress import IPv4Address, IPv6Address, AddressValueError
 from typing import NamedTuple
 
-import ping3
-
-
 def IPAddress(value):
     try:
         return IPv4Address(value)
@@ -37,6 +34,7 @@ def ping(name, timeout=1):
     :param timeout:
     :return:
     """
+    import ping3
     return ping3.ping(name, timeout=timeout)
 
 

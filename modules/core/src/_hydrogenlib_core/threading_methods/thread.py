@@ -1,7 +1,5 @@
 from threading import Thread as _Thread
 from weakref import WeakValueDictionary as weakdict
-from _hydrogenlib_core.typefunc import alias
-
 
 thread_mapping = weakdict()  # type: weakdict[int, 'Thread']
 
@@ -38,7 +36,7 @@ class FuncWorker(ThreadWorker):
 class Thread:
     worker: ThreadWorker
 
-    ident: int = alias['ident']
+    ident: int
 
     @property
     def worker(self):
@@ -74,4 +72,3 @@ class Thread:
     @property
     def lived(self):
         return self._thread.is_alive()
-

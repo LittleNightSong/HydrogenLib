@@ -12,12 +12,6 @@ keywords = []
 classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Python", "Programming Language :: Python :: 3.11", "Programming Language :: Python :: 3.12", "Programming Language :: Python :: 3.13", "Programming Language :: Python :: Implementation :: CPython", "Programming Language :: Python :: Implementation :: PyPy"]
 dependencies = [
   "bitarray~=3.0",
-  "jsonpickle~=3.3",
-  "ping3~=4.0",
-  "psutil~=6.0",
-  "rich~=14.0",
-  "aiofiles>=24.1.0",
-  "anyio>=4.11.0",
   "asyncstdlib>=3.13.1"
 ]
 
