@@ -1,137 +1,208 @@
-import enum
+import copy
 import inspect
 import struct
 from collections import OrderedDict
+from collections.abc import Buffer
+from typing import Self, Generator
 
-from _hydrogenlib_core.typefunc import AutoSlotsMeta
+from _hydrogenlib_core.typefunc import AutoSlots
+
+endian_control_characters = tuple('<@=!>')
+
+_AOT_TEMPLATE = """
+def pack(self):
+    return self.__st_struct__.pack({selfattrs})
+
+def pack_into(self, buffer, offset=0):
+    self.__st_struct__.pack_into(buffer, offset, {selfattrs})
+
+@classmethod
+def unpack(cls, buffer):
+    self = object.__new__(cls)
+    {selfattrs} = self.__st_struct__.unpack(buffer)
+    return self
+
+@classmethod
+def unpack_from(cls, buffer, offset=0):
+    self = object.__new__(cls)
+    {selfattrs} = cls.__st_struct__.unpack_from(buffer, offset)
+    return self
+
+@classmethod
+def iter_unpack(cls, buffer):
+    for values in cls.__st_struct__.iter_unpack(buffer):
+        self = object.__new__(cls)
+        {selfattrs} = values
+        yield self
+
+@classmethod
+def iter_unpack_reused(cls, buffer):
+    self = object.__new__(cls)
+    for values in cls.__st_struct__.iter_unpack(buffer):
+        {selfattrs} = values
+        yield self
+
+def update_from(self, buffer, offset=0):
+    {selfattrs} = self.__st_struct__.unpack_from(buffer, offset)
+    return self
+    
+def __init__(self, {init_signature}):
+    {selfattrs} = {attrs}
+    
+"""
 
 
-class c_types(str, enum.Enum):
-    pad = 'x'
+class Struct(AutoSlots):
+    """
+    Base class for creating structured data with a defined format, suitable for packing and unpacking binary data.
 
-    char = 'c'
+    This class allows the creation of a structure that can be used to pack and unpack binary data according to a
+    specified format. It supports type annotations for defining the fields of the structure.
+    The class automatically generates the necessary format string for the `struct` module based on the provided
+    field types. It also provides methods for comparing instances, packing and unpacking data,
+    and converting the structure to a dictionary representation.
 
-    byte = 'b'
-    ubyte = 'B'
+    Usage:
+        class MyStruct(Struct):
+            a: int
+            b: bool
+            c: float
+    """
+    __no_slots__ = (
+        '__st_fields__', '__st_struct__', '__st_format__', '__st_order__',
+        '__ost_fields__'
+    )
 
-    bool = '?'
+    __st_fields__: dict[str, type] = None
+    __st_struct__: struct.Struct = None
+    __st_format__: str = ''
+    __st_order__: str = '@'
 
-    short = 'h'
-    ushort = 'H'
+    # optimize attributes
+    __ost_fields__: tuple[str, ...] = None
 
-    int = 'i'
-    uint = 'I'
+    # __ost_methods__: dict[str, Callable] = None
 
-    long = 'l'
-    ulong = 'L'
+    def __init_subclass__(cls, *, middle=False, endian: str = '@', **kwargs):
+        if middle:
+            return
 
-    llong = 'q'
-    ullong = 'Q'
+        from .types import get_ctype
 
-    short_float = 'e'
-    float = 'f'
-    double = 'd'
-
-    ssize_t = 'n'
-    size_t = 'N'
-
-    string = 's'
-    bytearray = 'p'
-
-    pointer = 'P'
-
-
-class StructMeta(AutoSlotsMeta):
-    __migrate_class_vars__ = True
-
-    def __init__(cls, name, bases, attrs):
-        super().__init__(name, bases, attrs)
-
-        # if cls.__s_fields__ is None:
-        #     cls.__s_fields__ = OrderedDict()
-        # else:
-        #     cls.__s_fields__ = cls.__s_fields__.copy()
-        cls.__s_fields__ = cls.__s_fields__.copy() if cls.__s_fields__ else OrderedDict()
+        cls.__st_fields__ = copy.copy(cls.__st_fields__) or OrderedDict()  # 继承父类型的字段
 
         new_fields = OrderedDict()
         for name, anno in inspect.get_annotations(cls).items():
-            if name not in cls.__s_fields__:
-                new_fields[name] = anno
+            if name in cls.__st_fields__:
+                raise TypeError(f"Field {name!r} is already defined")
+            new_fields[name] = get_ctype(anno)
 
-        cls.__s_fields__.update(new_fields)
+        cls.__st_fields__.update(new_fields)
+        cls.__st_format__ += ''.join(new_fields.values())  # 更新新字段的 format string
 
-        if cls.__s_format__ is None:
-            cls.__s_format__ = ''
+        if cls.__st_format__.startswith(endian_control_characters):  # 修改字节序
+            if cls.__st_format__[0] != endian:
+                cls.__st_format__ = endian + cls.__st_format__[1:]
 
-        cls.__s_format__ += ''.join(
-            new_fields.values()
+        cls.__st_struct__ = struct.Struct(cls.__st_format__)  # 构造 Struct 类型
+
+        # 优化
+        # 生成 ost-fields
+        # cls.__ost_fields__ = tuple(cls.__st_fields__.keys())
+
+        cls.__ost_fields__ = field_names = tuple(cls.__st_fields__.keys())
+
+        selfattrs = ', '.join(
+            map(
+                lambda x: f'self.{x}',
+                field_names
+            )
         )
 
-        cls.__s_struct__ = struct.Struct(cls.__s_format__)
+        def _processor(name):
+            if name in cls.__migrated__:
+                return f'{name}={cls.__migrated__[name]}'
+            else:
+                return f'{name}'
 
-    def __getattr__(self, item):
-        match item:
-            case 'size':
-                return self.__s_struct__.size
-            case 'format':
-                return self.__s_format__
-        raise AttributeError(f"{self.__class__.__name__} has no attribute '{item}')")
+        # 生成 init 方法的签名
+        init_signature = ', '.join(
+            map(
+                _processor,
+                field_names
+            )
+        )
 
+        # 普通的字段元组
+        simple_attrs = ', '.join(field_names)
 
-class Struct(metaclass=StructMeta):
-    __s_fields__ = None
-    __s_format__ = None
-    __s_struct__ = None
+        # 生成 ost-methods
+        gl = {}
+        exec(
+            _AOT_TEMPLATE.format(
+                selfattrs=selfattrs,
+                init_signature=init_signature,
+                attrs=simple_attrs,
+            ),
+            globals=gl
+        )
 
-    def __init__(self, *args, **kwargs):
-        assigned_args = set()
-        for name, arg in zip(self.__s_fields__, args):
-            assigned_args.add(name)
-            setattr(self, name, arg)
+        cls.__ost_methods__ = gl
 
-        for name, value in kwargs.items():
-            if name in assigned_args:
-                # TypeError: example_function() got multiple values for argument 'b'
-                raise TypeError(f"{self.__class__.__name__}(...) got multiple values for argument '{name}")
-            setattr(self, name, value)
+        cls.pack = gl['pack']
+        cls.pack_into = gl['pack_into']
+        cls.unpack = gl['unpack']
+        cls.unpack_from = gl['unpack_from']
+        cls.iter_unpack = gl['iter_unpack']
+        cls.iter_unpack_reused = gl['iter_unpack_reused']
+        cls.update_from = gl['update_from']
+        cls.__init__ = gl['__init__']
 
-    @property
-    def field_values(self):
-        for field in self.__s_fields__:
-            yield getattr(self, field)
+    def __init__(self, *args, **kwargs) -> None:
+        ...
 
-    def pack(self):
-        return self.__s_struct__.pack(*self.field_values)
+    def __eq__(self, other):
+        if isinstance(other, Struct):
+            return other.__st_format__ == other.__st_format__ and self.to_dict() == other.to_dict()
+        elif isinstance(other, dict):
+            return self.to_dict() == other
+        elif isinstance(other, bytes):
+            return self.unpack(other) == self
+        else:
+            raise NotImplementedError(other)
 
-    def pack_into(self, buffer, offset=0):
-        return self.__s_struct__.pack_into(buffer, offset, *self.field_values)
+    def pack(self) -> bytes:
+        ...
+
+    def pack_into(self, buffer: Buffer, offset=0) -> None:
+        ...
 
     @classmethod
-    def unpack(cls, buffer):
-        return cls(
-            *cls.__s_struct__.unpack(buffer)
-        )
+    def unpack(cls, buffer) -> Self:
+        ...
 
     @classmethod
-    def unpack_from(cls, buffer, offset=0):
-        return cls(
-            *cls.__s_struct__.unpack(buffer)
-        )
+    def unpack_from(cls, buffer, offset=0) -> Self:
+        ...
 
     @classmethod
-    def iter_unpack(cls, buffer):
-        yield from map(
-            lambda x: cls(*x),
-            cls.__s_struct__.iter_unpack(buffer)
-        )
+    def iter_unpack(cls, buffer) -> Generator[Self, None, None]:
+        ...
+
+    @classmethod
+    def iter_unpack_reused(cls, buffer) -> Generator[Self, None, None]:
+        ...
+
+    def update_from(self, buffer: Buffer, offset=0) -> None:
+        ...
 
     def to_dict(self):
         return {
             k: getattr(self, k)
-            for k in self.__s_fields__
+            for k in self.__ost_fields__
         }
 
-    def __repr__(self):
+    def __str__(self):
         dct = self.to_dict()
         kv_string = ', '.join(
             map(
@@ -141,6 +212,12 @@ class Struct(metaclass=StructMeta):
         )
         return f'{self.__class__.__name__}' f"({kv_string})"
 
-    def __getattr__(self, item):
-        attr = getattr(type(self.__class__), item)  # 从元类中重新提取属性
-        return attr
+    def __repr__(self):
+        dct = self.to_dict()
+        kv_string = ', '.join(
+            map(
+                lambda x: f"{x[0]}={x[1]!r}"
+                , dct.items()
+            )
+        )
+        return f'{self.__class__.__name__}[{self.__st_format__}]' f"({kv_string})"

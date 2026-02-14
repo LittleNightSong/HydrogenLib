@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "Hydrogenlib-Objective-Struct"
+dynamic = ["version"]
+description = ''
+readme = "README.md"
+requires-python = ">=3.12"
+keywords = []
+classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Python", "Programming Language :: Python :: 3.11", "Programming Language :: Python :: 3.12", "Programming Language :: Python :: 3.13", "Programming Language :: Python :: Implementation :: CPython", "Programming Language :: Python :: Implementation :: PyPy"]
+dependencies = []
+
+[[project.authors]]
+name = "LittleNightSong"
+email = "LittleNightSongYO@outlook.com"
+[project.urls]
+Documentation = "https://github.com/LittleNightSong/HydrogenLib#readme"
+Issues = "https://github.com/LittleNightSong/HydrogenLib/issues"
+Source = "https://github.com/LittleNightSong/HydrogenLib"
+
+[tool.hatch.version]
+path = "src/_hydrogenlib_objective_struct/__about__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/_hydrogenlib_objective_struct"]
+

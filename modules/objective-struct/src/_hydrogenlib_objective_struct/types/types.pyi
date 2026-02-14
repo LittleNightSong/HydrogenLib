@@ -1,0 +1,69 @@
+import sys
+
+
+class _ctype:
+    __ctype__: str
+
+
+def pad(size: int) -> type: ...
+
+
+class char(bytes, _ctype): ...
+
+
+class signed_char(int, _ctype): ...
+
+
+class unsigned_char(int, _ctype): ...
+
+
+class long(int, _ctype): ...
+
+
+class unsigned_long(int, _ctype): ...
+
+
+class short(int, _ctype): ...
+
+
+class unsigned_short(int, _ctype): ...
+
+
+class unsigned_int(int, _ctype): ...
+
+
+class long_long(int, _ctype): ...
+
+
+class unsigned_long_long(int, _ctype): ...
+
+
+class double(float, _ctype): ...
+
+
+class short_double(float, _ctype): ...
+
+
+class short_float(float, _ctype): ...
+
+
+class size_t(int, _ctype): ...
+
+
+class ssize_t(int, _ctype): ...
+
+
+def string(length: int) -> type[bytes]: ...
+
+
+def pascal_string(length: int) -> type[bytes]: ...
+
+
+class pointer(int, _ctype): ...
+
+
+if sys.version_info >= (3, 14, 0):
+    class float_complex(complex, _ctype): ...
+
+
+    class double_complex(complex, _ctype): ...
