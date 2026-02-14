@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "HydrogenLib-NEXT"
-dynamic = ["version"]
+version = '11'
 readme = "README.md"
 requires-python = ">=3.12"
 keywords = []
@@ -22,23 +22,21 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy"
 ]
 dependencies = [
-    "hydrogenlib-core",
-    "hydrogenlib-config",
-    #    "hydrogenlib-tools",
-    #    "hydrogenlib-ctypes",
-    #    "hydrogenlib-quickapi",
-    #    "hydrogenlib-resource-system"
+    'HydrogenLib-ReImporter'
 ]
 
 import-names = ["hydrogenlib"]
+
+[project.optional-dependencies]
+config = ['HydrogenLib-Config']
+core = ['HydrogenLib-Core']
+resource-system = ['HydrogenLib-Resource-System']
+ctypes = ['HydrogenLib-Ctypes']
 
 [project.urls]
 Documentation = "https://github.com/LittleNightSong/HydrogenLib#readme"
 Issues = "https://github.com/LittleNightSong/HydrogenLib/issues"
 Source = "https://github.com/LittleNightSong/HydrogenLib"
-
-[tool.hatch.version]
-path = "hydrogenlib/__init__.py"
 
 [[tool.uv.index]]
 url = "https://mirrors.aliyun.com/pypi/simple"
@@ -51,7 +49,7 @@ dev = [
     "hatch",
     "hatchling",
     "httpx",
-    "packaging>=25.0",
+    "packaging",
     "pydantic",
     "tomlkit",
     "urllib3",
@@ -59,4 +57,4 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["hydrogenlib"]
+packages = []
