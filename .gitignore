@@ -7,11 +7,12 @@
 # IDE settings
 /.idea/
 /.vscode/
+/.ai/
 
 # Files in Dev
 /**/.temp/
 /**/.tests/
-/**/tests
+/**/tests/
 /**/dev-scripts/
-/uv.lock
-/hydrogenlib
+/**/uv.lock
+/**/.hydro-ignore
