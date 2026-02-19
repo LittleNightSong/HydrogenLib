@@ -1,6 +1,4 @@
 from .async_func import *
-from .bitmap import *
-from .call_property import *
 from .common import *
 from .dict_func import *
 from .function import *
@@ -9,5 +7,4 @@ from .list_func import *
 from .number import *
 from .properties import alias
 from .safe_eval import *
-from .tempalte_type import *
 from .type_func import *

@@ -6,7 +6,7 @@ class ObjectiveDict:
     __slots__ = ("_dict",)
 
     def __init__(self, **kwargs):
-        super().__setattr__(self, "_dict", kwargs)
+        super().__setattr__("_dict", kwargs)
 
     def __getattr__(self, item):
         return self[item]

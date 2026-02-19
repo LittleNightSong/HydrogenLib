@@ -123,12 +123,12 @@ class AutoSlotsMeta(type):
     Attributes:
         __slots__ (tuple): Slots for the class.
         __no_slots__ (tuple): Attributes to exclude from slots.
-        __migrate_class_vars__ (bool): Whether to migrate class variables.
+        __migrate__ (bool): Whether to migrate class variables.
         __migrated__ (dict): Migrated class variables.
     """
     __slots__: tuple
     __no_slots__: tuple
-    __migrate_class_vars__: bool = False
+    __migrate__: bool = False
     __migrated__ = None
 
     def __new__(cls, name, bases, attrs):
@@ -149,7 +149,7 @@ class AutoSlotsMeta(type):
 
         attrs['__slots__'] = tuple(slots - no_slots)
 
-        if attrs.get('__migrate_class_vars__') or getattr(cls, '__migrate_class_vars__', None):
+        if attrs.get('__migrate__') or getattr(cls, '__migrate__', None):
             migrated = {}
             for attr in attrs['__slots__']:
                 if attr in attrs:
@@ -168,7 +168,11 @@ class AutoSlots(metaclass=AutoSlotsMeta):
     Purpose:
         Reduces memory usage and speeds up attribute access by eliminating the instance dictionary.
     """
-    pass
+    if typing.TYPE_CHECKING:
+        __slots__ = None
+        __no_slots__ = None
+        __migrate__ = False
+        __migrated__ = None
 
 
 def get_origin(tp):

@@ -50,6 +50,31 @@ class EnhancedGenerator[YT, ST, RT](Generator[YT, ST, RT]):
 
         return self.next()
 
+    def get_with_default(self, index, default=None):
+        if index < self.cnt:
+            if self.history is None:
+                return default
+            else:
+                return self.history[index]
+        try:
+            for i in range(index - self.cnt - 1):
+                self.next()
+
+            return self.next()
+        except StopIteration:
+            return default
+
+    def last(self, offset=1):
+        if self.history is None:
+            raise RuntimeError("No history")
+
+        return self.history[-offset]
+
+    def lasts(self, offset=1):
+        if self.history is None:
+            raise RuntimeError("No history")
+        return self.history[-offset:]
+
     def run_util_end(self):
         try:
             while True:
