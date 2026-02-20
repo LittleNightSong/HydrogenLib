@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Generator, Callable
+from typing import Generator, Callable, overload
 
 
 class EnhancedGenerator[YT, ST, RT](Generator[YT, ST, RT]):
@@ -103,6 +103,18 @@ class EnhancedGenerator[YT, ST, RT](Generator[YT, ST, RT]):
 
     def __iter__(self):
         return self
+
+
+@overload
+def enhanced_generator[**P, YT, ST, RT](*, history: bool = False) -> Callable[
+    [Callable[P, Generator[YT, ST, RT]]], Callable[P, EnhancedGenerator[YT, ST, RT]]]:
+    ...
+
+
+@overload
+def enhanced_generator[**P, YT, ST, RT](func: Callable[P, Generator[YT, ST, RT]]) -> Callable[
+    P, EnhancedGenerator[YT, ST, RT]]:
+    ...
 
 
 def enhanced_generator[YT, ST, RT](
