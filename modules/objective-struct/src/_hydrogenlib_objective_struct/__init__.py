@@ -1,3 +1,4 @@
 from .methods import pack, unpack
-from .objective_struct import Struct
+from .core import struct
+from .struct_type import Struct
 from .types import *

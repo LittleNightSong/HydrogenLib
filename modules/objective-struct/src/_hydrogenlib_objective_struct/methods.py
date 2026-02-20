@@ -1,26 +1,49 @@
 import struct
-import typing
 from collections.abc import Buffer
-from typing import Any
+from typing import Any, Sequence, Iterator, get_args, get_origin
+
+from typing_inspection.typing_objects import is_annotated
+
+from _hydrogenlib_objective_struct.struct_type import CType
+
+mapping = {
+    int: 'i', float: 'f', bool: '?'
+}
+
+CTypesFields = Sequence[str | CType | type] | Iterator[str | CType | type]
 
 
-class _CType(typing.Protocol):
-    __ctype__: str
+def get_ctype(tp):
+    if isinstance(tp, str):
+        return tp
+    elif _ := getattr(tp, '__ctype__', None):
+        return _
+    elif _ := mapping.get(tp):
+        return _
+    elif is_annotated(get_origin(tp)):
+        # 目前需要 Annotated 的类型只有 array
+        tp_args = get_args(tp)
+        dtype = get_args(tp_args[0])[0]
+        length = tp_args[1]
+        c_size = struct.calcsize(get_ctype(dtype))
+        return f'{length * c_size}s'
+    else:
+        raise ValueError(f'Unrecognized type: {tp}')
 
 
-def to_format_string(format: tuple[str | _CType, ...]):
+def to_format_string(fields: CTypesFields):
     format = ''.join(
         map(
-            lambda x: x if isinstance(x, str) else x.__ctype__,
-            format
+            get_ctype,
+            fields
         )
     )
     return format
 
 
-def pack(format: tuple[str | _CType, ...], *data: Any) -> bytes:
+def pack(format: CTypesFields, *data: Any) -> bytes:
     return struct.pack(to_format_string(format), *data)
 
 
-def unpack(format: tuple[str | _CType], data: Buffer):
+def unpack(format: CTypesFields, data: Buffer):
     return struct.unpack(to_format_string(format), data)

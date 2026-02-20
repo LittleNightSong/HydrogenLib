@@ -1,4 +1,5 @@
 import sys
+from typing import Literal, Sequence
 
 
 class _ctype:
@@ -39,9 +40,6 @@ class unsigned_long_long(int, _ctype): ...
 
 
 class double(float, _ctype): ...
-
-
-class short_double(float, _ctype): ...
 
 
 class short_float(float, _ctype): ...
