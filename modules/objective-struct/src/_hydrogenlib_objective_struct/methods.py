@@ -4,7 +4,7 @@ from typing import Any, Sequence, Iterator, get_args, get_origin
 
 from typing_inspection.typing_objects import is_annotated
 
-from _hydrogenlib_objective_struct.struct_type import CType
+from .struct_type import CType
 
 mapping = {
     int: 'i', float: 'f', bool: '?'

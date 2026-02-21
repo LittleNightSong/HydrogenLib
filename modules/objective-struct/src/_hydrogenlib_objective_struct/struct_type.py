@@ -11,19 +11,9 @@ class CType(typing.Protocol):
 
 class Struct(CType):
     """
-    Base class for creating structured data with a defined format, suitable for packing and unpacking binary data.
-
-    This class allows the creation of a structure that can be used to pack and unpack binary data according to a
-    specified format. It supports type annotations for defining the fields of the structure.
-    The class automatically generates the necessary format string for the `struct` module based on the provided
-    field types. It also provides methods for comparing instances, packing and unpacking data,
-    and converting the structure to a dictionary representation.
-
-    Usage:
-        class MyStruct(Struct):
-            a: int
-            b: bool
-            c: float
+    代表C语言结构体的Python类。
+    提供了将结构体对象与字节序列之间互相转换的功能，
+    包括打包、解包、更新等操作。
     """
 
     __cfields__: ClassVar[tuple[dataclasses.Field]]
@@ -49,7 +39,10 @@ class Struct(CType):
         ...
 
     @classmethod
-    def iter_unpack_reused(cls, buffer) -> Generator[Self, None, None]:
+    def iter_update(cls, buffer) -> Generator[Self, None, None]:
+        ...
+
+    def update(self, buffer: Buffer) -> None:
         ...
 
     def update_from(self, buffer: Buffer, offset=0) -> None:
